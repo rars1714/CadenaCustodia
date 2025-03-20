@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Formulario</title>
+  <title>Formulario de Casos</title>
   <!-- Fuentes -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap" rel="stylesheet" />
@@ -73,7 +73,8 @@
   <!-- ========== Formulario de Casos ========== -->
   <div class="formbold-main-wrapper">
     <div class="formbold-form-wrapper">
-      <form action="https://formbold.com/s/FORM_ID" method="POST">
+      <!-- Se actualiza el action para apuntar a registro_caso.php -->
+      <form action="registro_caso.php" method="POST">
         <div class="formbold-input-flex">
           <div>
             <input type="text" name="id_caso" id="id_caso" class="formbold-form-input" value="1" readonly>
@@ -99,7 +100,7 @@
           <div>
             <input type="text" name="estado_display" id="estado_display" class="formbold-form-input" value="Abierto" disabled>
             <!-- Input hidden para enviar el valor -->
-            <input type="hidden" name="estado" value="Abierto">
+            <input type="hidden" name="estado" value="abierto">
             <label for="estado_display" class="formbold-form-label">Estado</label>
           </div>
         </div>
