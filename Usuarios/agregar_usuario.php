@@ -1,3 +1,13 @@
+<?php
+$conexion = new mysqli("localhost", "root", "", "cadena_custodia");
+if ($conexion->connect_error) {
+    die("Error de conexión: " . $conexion->connect_error);
+}
+
+$resultado = $conexion->query("SELECT MAX(id_usuario) AS ultimo_id FROM usuarios");
+$fila = $resultado->fetch_assoc();
+$siguiente_id_usuario = $fila['ultimo_id'] + 1
+?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -8,6 +18,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../css/navbar.css">
   <link rel="stylesheet" href="../css/forms.css">
+  <link rel="stylesheet" href="../css/usuario/check_usuario.css">
 </head>
 <body>
   <!-- ========== Navbar ========== -->
@@ -58,7 +69,7 @@
               <li class="separator"></li>
               <li><a href="#">Permisos</a></li>
               <li class="separator"></li>
-              <li><a href="#">Modificar</a></li>
+              <li><a href="modificar_usuario.php">Modificar</a></li>
             </ul>
           </li>
           <li><a href="#">Historial de accesos</a></li>
@@ -81,6 +92,8 @@
               id="id_usuario"
               placeholder="ID Usuario"
               class="formbold-form-input"
+              value="<?php echo $siguiente_id_usuario; ?>" 
+              readonly
             />
             <label for="id_usuario" class="formbold-form-label">ID Usuario</label>
           </div>
@@ -157,69 +170,34 @@
             <label for="rol" class="formbold-form-label">Rol</label>
           </div>
         </div>
-
         <!-- Botón para pasar a la confirmación -->
-        <button type="button" id="confirmBtn" class="formbold-btn">
+        <button type="button" id="confirmBtn" class="formbold-btn" style="width: 250px; display: block; margin: 0 auto;">
           Confirmar Datos
         </button>
+
       </form>
 
       <!-- Sección de confirmación -->
-      <div id="confirmation" style="display:none;">
+      <div id="confirmation">
         <h3>Confirma tus datos</h3>
-        <p id="confirmIdUsuario"></p>
-        <p id="confirmNombre"></p>
-        <p id="confirmApellido"></p>
-        <p id="confirmDespacho"></p>
-        <p id="confirmCorreo"></p>
-        <p id="confirmRol"></p>
-        <button id="editBtn" class="formbold-btn">Editar</button>
-        <button id="submitBtn" class="formbold-btn">Confirmar Registro</button>
+        <ul>
+          <li id="confirmIdUsuario"></li>
+          <li id="confirmNombre"></li>
+          <li id="confirmApellido"></li>
+          <li id="confirmDespacho"></li>
+          <li id="confirmCorreo"></li>
+          <li id="confirmRol"></li>
+        </ul>
+        <div style="display: flex; justify-content: center; gap: 20px; flex-wrap: wrap;">
+          <button id="editBtn" class="formbold-btn">Editar</button>
+          <button id="submitBtn" class="formbold-btn">Confirmar Registro</button>
+        </div>
       </div>
     </div>
   </div>
 
   <script src="../js/navbar.js"></script>
-  <script>
-    // Al hacer clic en "Confirmar Datos", se recopilan y muestran los datos (excepto la contraseña)
-    document.getElementById("confirmBtn").addEventListener("click", function(){
-      var idUsuario = document.getElementById("id_usuario").value;
-      var nombre = document.getElementById("Nombre").value;
-      var apellido = document.getElementById("Apellido").value;
-      var despacho = document.getElementById("despacho").value;
-      var correo = document.getElementById("Correo").value;
-      var rol = document.getElementById("rol").value;
-
-      // Puedes agregar validaciones adicionales antes de mostrar la confirmación
-      if (!nombre || !apellido || !correo || !despacho || !rol || !document.getElementById("contrasena").value) {
-        alert("Por favor, completa todos los campos.");
-        return;
-      }
-
-      // Mostrar los datos en la sección de confirmación
-      document.getElementById("confirmIdUsuario").innerText = "ID Usuario: " + (idUsuario ? idUsuario : "No especificado");
-      document.getElementById("confirmNombre").innerText = "Nombre: " + nombre;
-      document.getElementById("confirmApellido").innerText = "Apellido: " + apellido;
-      document.getElementById("confirmDespacho").innerText = "Despacho: " + despacho;
-      document.getElementById("confirmCorreo").innerText = "Correo: " + correo;
-      document.getElementById("confirmRol").innerText = "Rol: " + rol;
-
-      // Ocultar el formulario y mostrar la sección de confirmación
-      document.getElementById("registrationForm").style.display = "none";
-      document.getElementById("confirmation").style.display = "block";
-    });
-
-    // Botón "Editar": vuelve al formulario para hacer correcciones
-    document.getElementById("editBtn").addEventListener("click", function(){
-      document.getElementById("registrationForm").style.display = "block";
-      document.getElementById("confirmation").style.display = "none";
-    });
-
-    // Botón "Confirmar Registro": envía el formulario
-    document.getElementById("submitBtn").addEventListener("click", function(){
-      document.getElementById("registrationForm").submit();
-    });
-  </script>
+  <script src="../js/usuario/registro_usuario.js"></script>
   <script src="../js/forms.js"></script>
 </body>
 </html>

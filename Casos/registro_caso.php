@@ -5,7 +5,7 @@
 $db_host = "localhost";
 $db_user = "root";
 $db_pass = "";
-$db_name = "Practicum";
+$db_name = "cadena_custodia";
 
 // Conexión a la base de datos
 $conn = new mysqli($db_host, $db_user, $db_pass, $db_name);

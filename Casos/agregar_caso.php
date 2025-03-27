@@ -1,3 +1,16 @@
+<?php
+// Conexión a la base de datos
+$conexion = new mysqli("localhost", "root", "", "cadena_custodia");
+if ($conexion->connect_error) {
+    die("Error de conexión: " . $conexion->connect_error);
+}
+
+// Consulta del último id_caso
+$resultado = $conexion->query("SELECT MAX(id_caso) AS ultimo_id FROM casos");
+$fila = $resultado->fetch_assoc();
+$siguiente_id = $fila['ultimo_id'] + 1;
+?>
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -60,7 +73,7 @@
               <li class="separator"></li>
               <li><a href="#">Permisos</a></li>
               <li class="separator"></li>
-              <li><a href="#">Modificar</a></li>
+              <li><a href="../Usuarios/modificar_usuario.php">Modificar</a></li>
             </ul>
           </li>
           <li><a href="#">Historial de accesos</a></li>
@@ -77,7 +90,7 @@
       <form action="registro_caso.php" method="POST">
         <div class="formbold-input-flex">
           <div>
-            <input type="text" name="id_caso" id="id_caso" class="formbold-form-input" value="1" readonly>
+          <input type="text" name="id_caso" id="id_caso" class="formbold-form-input" value="<?php echo $siguiente_id; ?>" readonly>
             <label for="id_caso" class="formbold-form-label">ID del Caso</label>
           </div>
           <div>

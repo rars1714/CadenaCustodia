@@ -59,7 +59,7 @@
               <li class="separator"></li>
               <li><a href="#">Consultar</a></li>
               <li class="separator"></li>
-              <li><a href="#">Modificar</a></li>
+              <li><a href="../Usuarios/modificar_usuario.php">Modificar</a></li>
             </ul>
           </li>
           <li><a href="#">Historial de accesos</a></li>
