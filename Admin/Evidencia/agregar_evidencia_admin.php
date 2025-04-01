@@ -7,7 +7,7 @@ if (!isset($_SESSION['usuario_id'])) {
     exit();
 }
 
-  $conexion = new mysqli("localhost", "root", "", "cadena_custodia");
+$conexion = new mysqli("localhost", "root", "", "cadena_custodia");
 if ($conexion->connect_error) {
     die("Error de conexión: " . $conexion->connect_error);
 }
@@ -26,9 +26,9 @@ $siguiente_id = $fila['ultimo_id'] + 1;
   <!-- Tus fuentes y CSS -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="../css/navbar.css">
-  <link rel="stylesheet" href="../css/forms.css">
-  <link rel="stylesheet" href="../css/confirmacion/check_usuario.css">
+  <link rel="stylesheet" href="../../css/navbar.css">
+  <link rel="stylesheet" href="../../css/forms.css">
+  <link rel="stylesheet" href="../../css/confirmacion/check_usuario.css">
 </head>
 <body>
   <!-- ========== Navbar ========== -->
@@ -41,7 +41,7 @@ $siguiente_id = $fila['ultimo_id'] + 1;
           <span></span>
         </button>
         <a href="#">
-          <img src="../images/techlab.png" alt="Legal Tech" style="width:150px; height:auto;">
+          <img src="../../images/techlab.png" alt="Legal Tech" style="width:150px; height:auto;">
         </a>
       </div>
       <div class="navbar-menu" id="open-navbar1">
@@ -58,9 +58,10 @@ $siguiente_id = $fila['ultimo_id'] + 1;
             <ul class="dropdown" id="dropdown-evidencia">
               <!-- Muestra el nombre y el ID del usuario logueado -->
               <li class="separator"></li>
-              <li><a href="agregar_evidencia.php">Agregar</a></li>
+              <li><a href="agregar_evidencia_admin.php">Agregar</a></li>
               <li class="separator"></li>
-              <li><a href="modificar_evidencia.php">Consultar</a></li>
+              <li><a href="modificar_evidencia_admin.php">Consultar</a></li>
+              <li class="separator"></li>
             </ul>
           </li>
           <li class="navbar-dropdown">
@@ -68,12 +69,26 @@ $siguiente_id = $fila['ultimo_id'] + 1;
               Casos <i class="fa fa-angle-down"></i>
             </a>
             <ul class="dropdown" id="dropdown-casos">
-              <li><a href="../Casos/agregar_caso.php">Agregar</a></li>
+              <li><a href="../../Admin/Casos/agregar_caso_admin.php">Agregar</a></li>
               <li class="separator"></li>
-              <li><a href="../Casos/modificar_caso.php">Consultar</a></li>
+              <li><a href="../../Admin/Casos/modificar_caso_admin.php">Consultar</a></li>
+              <li class="separator"></li>
             </ul>
           </li>
-          <li><a href="../Login/logout.php">Salir</a></li>
+          <li class="navbar-dropdown">
+            <a href="#" class="dropdown-toggler" data-dropdown="dropdown-usuarios">
+              Usuarios <i class="fa fa-angle-down"></i>
+            </a>
+            <ul class="dropdown" id="dropdown-usuarios">
+              <li><a href="../../Admin/Usuarios/agregar_usuario_admin.php">Agregar</a></li>
+              <li class="separator"></li>
+              <li><a href="#">Permisos</a></li>
+              <li class="separator"></li>
+              <li><a href="../../Admin/Usuarios/modificar_usuario_admin.php">Consultar</a></li>
+            </ul>
+          </li>
+          <li><a href="#">Historial de accesos</a></li>
+          <li><a href="../../Login/logout.php">Salir</a></li>
         </ul>
       </div>
     </div>
@@ -83,11 +98,11 @@ $siguiente_id = $fila['ultimo_id'] + 1;
   <div class="formbold-main-wrapper">
     <div class="formbold-form-wrapper">
       <!-- Se actualizó el action, método y enctype -->
-      <form action="registro_evidencia.php" method="POST" enctype="multipart/form-data">
+      <form id="registrationForm" action="../../Evidencia/registro_evidencia.php" method="POST" enctype="multipart/form-data">
         <div class="formbold-input-flex">
           <div>
             <!-- Aunque id_evidencia sea autoincrement, se muestra por si deseas asignar manual -->
-            <input type="text" name="id_evidencia" id="id_evidencia" placeholder="Número de Evidencia" class="formbold-form-input" />
+            <input type="text" name="id_evidencia" id="id_evidencia" placeholder="Número de Evidencia" class="formbold-form-input" value="<?php echo $siguiente_id; ?>" readonly/>
             <label for="id_evidencia" class="formbold-form-label">Número de Evidencia</label>
           </div>
           <div>
@@ -104,10 +119,8 @@ $siguiente_id = $fila['ultimo_id'] + 1;
               name="id_usuario"
               id="id_usuario"
               placeholder="ID Usuario"
-              class="formbold-form-input"
-              value="<?php echo htmlspecialchars($_SESSION['usuario_id']); ?>"
-              readonly
-            />
+              class="formbold-form-input">   
+              <!-- value="<?php echo htmlspecialchars($_SESSION['usuario_id']); ?>" readonly -->
             <label for="id_usuario" class="formbold-form-label">Usuario</label>
           </div>
           <div>
@@ -129,24 +142,37 @@ $siguiente_id = $fila['ultimo_id'] + 1;
 
         <div class="formbold-input-file">
           <div class="formbold-filename-wrapper" id="file-list">
-            <!-- Aquí se mostrarán los archivos subidos (opcional con JS) -->
           </div>
           <label for="upload" class="formbold-input-label">
             Adjuntar archivos
             <input type="file" id="upload" name="archivo" multiple>
           </label>
         </div>
-        <button class="formbold-btn" type="submit">
-          Registrar Evidencia
+        <button type="button" id="confirm" class="formbold-btn" style="display: block; margin: 30px auto;">
+          Confirmar Evidencia
         </button>
+
       </form>
+      <!-- Sección de confirmación -->
+      <div id="confirmation">
+        <h3>Confirma tus datos</h3>
+        <ul>
+          <li id="confirmid_evidencia"></li>
+          <li id="confirmid_caso"></li>
+          <li id="confirmtipo_evidencia"></li>
+          <li id="confirmdescripcion"></li>
+          <li id="confirmnombre_archivo"></li>
+        </ul>
+        <div style="display: flex; justify-content: center; gap: 20px; flex-wrap: wrap;">
+          <button id="editBtn" class="formbold-btn">Editar</button>
+          <button id="submitBtn" class="formbold-btn">Confirmar Registro</button>
+        </div>
+      </div>
     </div>
   </div>
-
-  <script src="../js/navbar.js"></script>
-  <script src="../js/forms.js"></script>
-  <script src="../js/registro/registro_evidencia.js"></script>
-  <script src="../js/registro/tipo_archivo_evidencia.js"></script>
-
+  <script src="../../js/registro/tipo_archivo_evidencia.js"></script>
+  <script src="../../js/navbar.js"></script>
+  <script src="../../js/registro/registro_evidencia.js"></script>
+  <script src="../../js/forms.js"></script>
 </body>
 </html>

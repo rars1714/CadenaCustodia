@@ -25,8 +25,8 @@ $siguiente_id = $fila['ultimo_id'] + 1;
   <!-- Fuentes -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="../css/navbar.css">
-  <link rel="stylesheet" href="../css/forms.css">
+  <link rel="stylesheet" href="../../css/navbar.css">
+  <link rel="stylesheet" href="../../css/forms.css">
 </head>
 
 <body>
@@ -40,7 +40,7 @@ $siguiente_id = $fila['ultimo_id'] + 1;
           <span></span>
         </button>
         <a href="#">
-          <img src="../images/techlab.png" alt="Legal Tech" style="width:150px; height:auto;">
+          <img src="../../images/techlab.png" alt="Legal Tech" style="width:150px; height:auto;">
         </a>
       </div>
       <div class="navbar-menu" id="open-navbar1">
@@ -55,9 +55,9 @@ $siguiente_id = $fila['ultimo_id'] + 1;
               Evidencia <i class="fa fa-angle-down"></i>
             </a>
             <ul class="dropdown" id="dropdown-evidencia">
-              <li><a href="../Evidencia/agregar_evidencia.php">Agregar</a></li>
+              <li><a href="agregar_evidencia_admin.php">Agregar</a></li>
               <li class="separator"></li>
-              <li><a href="../Evidencia/modificar_evidencia.php">Consultar</a></li>
+              <li><a href="modificar_evidencia_admin.php">Consultar</a></li>
             </ul>
           </li>
           <li class="navbar-dropdown active">
@@ -65,12 +65,25 @@ $siguiente_id = $fila['ultimo_id'] + 1;
               Casos <i class="fa fa-angle-down"></i>
             </a>
             <ul class="dropdown" id="dropdown-casos">
-              <li><a href="agregar_caso.php">Agregar</a></li>
+              <li><a href="agregar_caso_admin.php">Agregar</a></li>
               <li class="separator"></li>
-              <li><a href="modificar_caso.php">Consultar</a></li>
+              <li><a href="modificar_caso_admin.php">Consultar</a></li>
             </ul>
           </li>
-          <li><a href="../Login/login.php">Salir</a></li>
+          <li class="navbar-dropdown">
+            <a href="#" class="dropdown-toggler" data-dropdown="dropdown-usuarios">
+              Usuarios <i class="fa fa-angle-down"></i>
+            </a>
+            <ul class="dropdown" id="dropdown-usuarios">
+              <li><a href="../Usuarios/agregar_usuario_admin.php">Agregar</a></li>
+              <li class="separator"></li>
+              <li><a href="#">Permisos</a></li>
+              <li class="separator"></li>
+              <li><a href="../Usuarios/modificar_usuario_admin.php">Modificar</a></li>
+            </ul>
+          </li>
+          <li><a href="#">Historial de accesos</a></li>
+          <li><a href="../../Login/login.php">Salir</a></li>
         </ul>
       </div>
     </div>
@@ -80,7 +93,7 @@ $siguiente_id = $fila['ultimo_id'] + 1;
   <div class="formbold-main-wrapper">
     <div class="formbold-form-wrapper">
       <!-- Se actualiza el action para apuntar a registro_caso.php -->
-      <form action="registro_caso.php" method="POST">
+      <form action="../../Casos/registro_caso.php" method="POST">
         <div class="formbold-input-flex">
           <div>
           <input type="text" name="id_caso" id="id_caso" class="formbold-form-input" value="<?php echo $siguiente_id; ?>" readonly>
@@ -123,7 +136,7 @@ $siguiente_id = $fila['ultimo_id'] + 1;
     </div>
   </div>
 
-  <script src="../js/navbar.js"></script>
-  <script src="../js/forms.js"></script>
+  <script src="../../js/navbar.js"></script>
+  <script src="../../js/forms.js"></script>
 </body>
 </html>

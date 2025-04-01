@@ -1,12 +1,15 @@
 <?php
+session_start();
+// Verificar si NO hay sesión activa
+if (!isset($_SESSION['usuario_id'])) {
+    header("Location: ../../Login/login.php");
+    exit();
+}
+
 $conexion = new mysqli("localhost", "root", "", "cadena_custodia");
 if ($conexion->connect_error) {
     die("Error de conexión: " . $conexion->connect_error);
 }
-
-$resultado = $conexion->query("SELECT MAX(id_usuario) AS ultimo_id FROM usuarios");
-$fila = $resultado->fetch_assoc();
-$siguiente_id_usuario = $fila['ultimo_id'] + 1
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -16,9 +19,9 @@ $siguiente_id_usuario = $fila['ultimo_id'] + 1
   <title>Registro de Usuario</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="../css/navbar.css">
-  <link rel="stylesheet" href="../css/forms.css">
-  <link rel="stylesheet" href="../css/confirmacion/check_usuario.css">
+  <link rel="stylesheet" href="../../css/navbar.css">
+  <link rel="stylesheet" href="../../css/forms.css">
+  <link rel="stylesheet" href="../../css/confirmacion/check_usuario.css">
 </head>
 <body>
   <!-- ========== Navbar ========== -->
@@ -31,8 +34,51 @@ $siguiente_id_usuario = $fila['ultimo_id'] + 1
           <span></span>
         </button>
         <a href="#">
-          <img src="../images/techlab.png" alt="Legal Tech" style="display:block; margin: 0 auto; width:150px; height:auto;">
+          <img src="../../images/techlab.png" alt="Legal Tech" style="width:150px; height:auto;">
         </a>
+      </div>
+      <div class="navbar-menu" id="open-navbar1">
+        <ul class="navbar-nav">
+        <li class="navbar-item">
+            <a href="#">
+              <?php echo htmlspecialchars($_SESSION['nombre']); ?> (ID: <?php echo htmlspecialchars($_SESSION['usuario_id']); ?>)
+            </a>
+          </li>
+          <li class="navbar-dropdown">
+            <a href="#" class="dropdown-toggler" data-dropdown="dropdown-evidencia">
+              Evidencia <i class="fa fa-angle-down"></i>
+            </a>
+            <ul class="dropdown" id="dropdown-evidencia">
+              <li><a href="../Evidencia/agregar_evidencia_admin.php">Agregar</a></li>
+              <li class="separator"></li>
+              <li><a href="../Evidencia/modificar_evidencia_admin.php">Consultar</a></li>
+            </ul>
+          </li>
+          <li class="navbar-dropdown">
+            <a href="#" class="dropdown-toggler" data-dropdown="dropdown-casos">
+              Casos <i class="fa fa-angle-down"></i>
+            </a>
+            <ul class="dropdown" id="dropdown-casos">
+              <li><a href="../Casos/agregar_caso_admin.php">Agregar</a></li>
+              <li class="separator"></li>
+              <li><a href="../Casos/modificar_caso_admin.php">Consultar</a></li>
+            </ul>
+          </li>
+          <li class="navbar-dropdown active">
+            <a href="#" class="dropdown-toggler" data-dropdown="dropdown-usuarios">
+              Usuarios <i class="fa fa-angle-down"></i>
+            </a>
+            <ul class="dropdown" id="dropdown-usuarios">
+              <li><a href="agregar_usuario_admin.php">Agregar</a></li>
+              <li class="separator"></li>
+              <li><a href="#">Permisos</a></li>
+              <li class="separator"></li>
+              <li><a href="modificar_usuario_admin.php">Consultar</a></li>
+            </ul>
+          </li>
+          <li><a href="#">Historial de accesos</a></li>
+          <li><a href="../../Login/login.php">Salir</a></li>
+        </ul>
       </div>
     </div>
   </nav>
@@ -50,7 +96,6 @@ $siguiente_id_usuario = $fila['ultimo_id'] + 1
               id="id_usuario"
               placeholder="ID Usuario"
               class="formbold-form-input"
-              value="<?php echo $siguiente_id_usuario; ?>" 
               readonly
             />
             <label for="id_usuario" class="formbold-form-label">ID Usuario</label>
@@ -153,9 +198,8 @@ $siguiente_id_usuario = $fila['ultimo_id'] + 1
       </div>
     </div>
   </div>
-
-  <script src="../js/navbar.js"></script>
-  <script src="../js/registro/registro_usuario.js"></script>
-  <script src="../js/forms.js"></script>
+  <script src="../../js/navbar.js"></script>
+  <script src="../../js/registro/registro_usuario.js"></script>
+  <script src="../../js/forms.js"></script>
 </body>
 </html>
