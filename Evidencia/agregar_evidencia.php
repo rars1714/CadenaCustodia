@@ -16,6 +16,20 @@ if ($conexion->connect_error) {
 $resultado = $conexion->query("SELECT MAX(id_evidencia) AS ultimo_id FROM evidencias");
 $fila = $resultado->fetch_assoc();
 $siguiente_id = $fila['ultimo_id'] + 1;
+
+require_once '../permisos.php';
+$rol = ucfirst(strtolower(trim($_SESSION['rol'])));
+
+
+if (!isset($permisos[$rol]['ingresar_evidencia']) || !$permisos[$rol]['ingresar_evidencia']) {
+  echo "<script>
+      alert('No cuenta con permisos para ingresar evidencia.');
+      window.location.href = '../home.php';
+  </script>";
+  exit();
+}
+
+
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -47,7 +61,7 @@ $siguiente_id = $fila['ultimo_id'] + 1;
       <div class="navbar-menu" id="open-navbar1">
         <ul class="navbar-nav">
           <li class="navbar-item">
-            <a href="#">
+            <a href="../home.php">
               <?php echo htmlspecialchars($_SESSION['nombre']); ?> (ID: <?php echo htmlspecialchars($_SESSION['usuario_id']); ?>)
             </a>
           </li>
@@ -86,8 +100,9 @@ $siguiente_id = $fila['ultimo_id'] + 1;
       <form action="registro_evidencia.php" method="POST" enctype="multipart/form-data">
         <div class="formbold-input-flex">
           <div>
-            <!-- Aunque id_evidencia sea autoincrement, se muestra por si deseas asignar manual -->
-            <input type="text" name="id_evidencia" id="id_evidencia" placeholder="Número de Evidencia" class="formbold-form-input" />
+            <input type="text" name="id_evidencia" id="id_evidencia" placeholder="Número de Evidencia"
+            class="formbold-form-input" 
+            value="<?php echo $siguiente_id; ?>" readonly>
             <label for="id_evidencia" class="formbold-form-label">Número de Evidencia</label>
           </div>
           <div>
@@ -98,25 +113,12 @@ $siguiente_id = $fila['ultimo_id'] + 1;
 
         <div class="formbold-input-flex">
           <div>
-            <!-- Rellenar con el ID del usuario logueado (readonly) -->
-            <input
-              type="text"
-              name="id_usuario"
-              id="id_usuario"
-              placeholder="ID Usuario"
-              class="formbold-form-input"
-              value="<?php echo htmlspecialchars($_SESSION['usuario_id']); ?>"
-              readonly
-            />
-            <label for="id_usuario" class="formbold-form-label">Usuario</label>
-          </div>
-          <div>
             <select name="tipo_evidencia" id="tipo_evidencia" class="formbold-form-input">
-              <option value="documento">PDF</option>
-              <option value="imagen">Imagen</option>
-              <option value="video">Video</option>
-              <option value="audio">Audio</option>
-              <option value="otro">Otro</option>
+              <option value="PDF">PDF</option>
+              <option value="Imagen">Imagen</option>
+              <option value="Video">Video</option>
+              <option value="Audio">Audio</option>
+              <option value="Otro">Otro</option>
             </select>
             <label for="tipo_evidencia" class="formbold-form-label">Tipo de Evidencia</label>
           </div>
@@ -136,7 +138,7 @@ $siguiente_id = $fila['ultimo_id'] + 1;
             <input type="file" id="upload" name="archivo" multiple>
           </label>
         </div>
-        <button class="formbold-btn" type="submit">
+        <button class="formbold-btn" type="submit" style="margin-top: 20px;">
           Registrar Evidencia
         </button>
       </form>
@@ -146,7 +148,6 @@ $siguiente_id = $fila['ultimo_id'] + 1;
   <script src="../js/navbar.js"></script>
   <script src="../js/forms.js"></script>
   <script src="../js/registro/registro_evidencia.js"></script>
-  <script src="../js/registro/tipo_archivo_evidencia.js"></script>
 
 </body>
 </html>

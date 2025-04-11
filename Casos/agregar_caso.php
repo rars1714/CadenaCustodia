@@ -1,7 +1,19 @@
 <?php
 session_start();
+
 if (!isset($_SESSION['usuario_id'])) {
     header("Location: ../Login/login.php");
+    exit();
+}
+
+require_once '../permisos.php';
+
+$rol = ucfirst(strtolower(trim($_SESSION['rol'])));
+if (!isset($permisos[$rol]['crear_casos']) || !$permisos[$rol]['crear_casos']) {
+    echo "<script>
+        alert('No tiene permiso para agregar casos.');
+        window.location.href = '../home.php';
+    </script>";
     exit();
 }
 
@@ -15,6 +27,7 @@ $resultado = $conexion->query("SELECT MAX(id_caso) AS ultimo_id FROM casos");
 $fila = $resultado->fetch_assoc();
 $siguiente_id = $fila['ultimo_id'] + 1;
 ?>
+
 
 <!DOCTYPE html>
 <html lang="es">
@@ -46,7 +59,7 @@ $siguiente_id = $fila['ultimo_id'] + 1;
       <div class="navbar-menu" id="open-navbar1">
         <ul class="navbar-nav">
           <li class="navbar-item">
-            <a href="#">
+            <a href="../home.php">
               <?php echo htmlspecialchars($_SESSION['nombre']); ?> (ID: <?php echo htmlspecialchars($_SESSION['usuario_id']); ?>)
             </a>
           </li>
@@ -98,18 +111,13 @@ $siguiente_id = $fila['ultimo_id'] + 1;
             <label for="nombre_caso" class="formbold-form-label">Nombre del Caso</label>
           </div>
           <div>
-            <input type="text" name="usuario" id="usuario" placeholder="ID del Usuario" class="formbold-form-input" />
-            <label for="usuario" class="formbold-form-label">Usuario</label>
-          </div>
-        </div>
-        <div class="formbold-input-flex">
-          <div>
             <input type="text" name="estado_display" id="estado_display" class="formbold-form-input" value="Abierto" disabled>
             <!-- Input hidden para enviar el valor -->
             <input type="hidden" name="estado" value="abierto">
             <label for="estado_display" class="formbold-form-label">Estado</label>
           </div>
         </div>
+
 
         <div class="formbold-textarea">
           <textarea rows="6" name="descripcion" id="descripcion" placeholder="Descripción del caso." class="formbold-form-input"></textarea>

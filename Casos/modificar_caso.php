@@ -1,7 +1,19 @@
 <?php
 session_start();
+
 if (!isset($_SESSION['usuario_id'])) {
-    header("Location: ../../Login/login.php");
+    header("Location: ../Login/login.php");
+    exit();
+}
+
+require_once '../permisos.php';
+
+$rol = ucfirst(strtolower(trim($_SESSION['rol'])));
+$id_usuario = $_SESSION['usuario_id'];
+
+// Verifica permiso de consulta
+if (!isset($permisos[$rol]['consultar_casos']) || $permisos[$rol]['consultar_casos'] === false) {
+    echo "<script>alert('No tiene permiso para consultar casos.'); window.location.href = '../home.php';</script>";
     exit();
 }
 
@@ -10,16 +22,23 @@ if ($conexion->connect_error) {
     die("Error de conexión: " . $conexion->connect_error);
 }
 
-$sql = "SELECT id_caso, nombre_caso, fecha_creacion, descripcion, estado, id_usuario FROM casos";
-$resultado = $conexion->query($sql);
-?>
+// Consulta solo los casos del usuario
+$sql = "SELECT id_caso, nombre_caso, fecha_creacion, descripcion, estado 
+        FROM casos 
+        WHERE id_usuario = ?";
+$stmt = $conexion->prepare($sql);
+$stmt->bind_param("i", $id_usuario);
+$stmt->execute();
+$resultado = $stmt->get_result();
 
+?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8">
   <title>Consultar Casos</title>
   <link rel="stylesheet" href="../css/modificar.css">
+  <!-- Fuentes -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../css/navbar.css">
@@ -42,7 +61,9 @@ $resultado = $conexion->query($sql);
       <div class="navbar-menu" id="open-navbar1">
         <ul class="navbar-nav">
           <li class="navbar-item">
-            <a href="#"><?php echo htmlspecialchars($_SESSION['nombre']); ?> (ID: <?php echo htmlspecialchars($_SESSION['usuario_id']); ?>)</a>
+            <a href="../home.php">
+              <?php echo htmlspecialchars($_SESSION['nombre']); ?> (ID: <?php echo htmlspecialchars($_SESSION['usuario_id']); ?>)
+            </a>
           </li>
           <li class="navbar-dropdown">
             <a href="#" class="dropdown-toggler" data-dropdown="dropdown-evidencia">
@@ -64,19 +85,19 @@ $resultado = $conexion->query($sql);
               <li><a href="modificar_caso.php">Consultar</a></li>
             </ul>
           </li>
-          <li><a href="../Login/login.php">Salir</a></li>
+          <li><a href="../Login/logout.php">Salir</a></li>
         </ul>
       </div>
     </div>
   </nav>
 
-  <!-- Tabla de casos -->
+  <!-- Tabla de Casos -->
   <table>
     <thead>
       <tr>
-        <th>ID</th>
+        <th>ID Caso</th>
         <th>Nombre del Caso</th>
-        <th>Fecha</th>
+        <th>Fecha Creación</th>
         <th>Usuario</th>
         <th>Descripción</th>
         <th>Estado</th>
@@ -88,7 +109,13 @@ $resultado = $conexion->query($sql);
         <td><?= $fila['id_caso'] ?></td>
         <td><?= htmlspecialchars($fila['nombre_caso']) ?></td>
         <td><?= $fila['fecha_creacion'] ?></td>
-        <td><?= $fila['id_usuario'] ?></td>
+        <td>
+          <select disabled>
+            <option value="<?= htmlspecialchars($_SESSION['usuario_id']) ?>" selected>
+              <?= htmlspecialchars($_SESSION['nombre']) ?> (ID: <?= htmlspecialchars($_SESSION['usuario_id']) ?>)
+            </option>
+          </select>
+        </td>
         <td><?= htmlspecialchars($fila['descripcion']) ?></td>
         <td><?= ucfirst($fila['estado']) ?></td>
       </tr>

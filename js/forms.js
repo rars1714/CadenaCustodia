@@ -1,7 +1,7 @@
 document.getElementById('upload').addEventListener('change', function(event) {
   let fileList = document.getElementById('file-list');
-  let evidenciaSelect = document.getElementById('id_evidencia'); // Captura el select
-  fileList.innerHTML = ''; // Limpiar lista antes de agregar nuevos archivos
+  let tipoSelect = document.getElementById('tipo_evidencia');
+  fileList.innerHTML = '';
 
   for (let file of event.target.files) {
     let fileItem = document.createElement('span');
@@ -12,20 +12,20 @@ document.getElementById('upload').addEventListener('change', function(event) {
       </svg>`;
     fileList.appendChild(fileItem);
 
-    // Obtener la extensión del archivo
+    // Detectar tipo según extensión
     let extension = file.name.split('.').pop().toLowerCase();
 
-    // Mapear extensiones con el select de "Tipo de Evidencia"
     if (extension === 'pdf') {
-      evidenciaSelect.value = 'documento';
+      tipoSelect.value = 'PDF';
     } else if (['png', 'jpg', 'jpeg', 'gif'].includes(extension)) {
-      evidenciaSelect.value = 'imagen';
+      tipoSelect.value = 'Imagen';
     } else if (['mp4', 'avi', 'mov', 'mkv'].includes(extension)) {
-      evidenciaSelect.value = 'video';
+      tipoSelect.value = 'Video';
     } else if (['mp3', 'wav', 'ogg'].includes(extension)) {
-      evidenciaSelect.value = 'audio';
+      tipoSelect.value = 'Audio';
     } else {
-      evidenciaSelect.value = 'Otro';
+      tipoSelect.value = 'Otro';
     }
   }
 });
+

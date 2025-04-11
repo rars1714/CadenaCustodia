@@ -149,7 +149,7 @@ document.querySelectorAll(".save-btn").forEach(button => {
     formData.append("descripcion", descripcion);
     formData.append("estado", estado);
 
-    fetch("../../Casos/actualizar_caso.php", {
+    fetch("actualizar_caso.php", {
       method: "POST",
       body: formData
     })

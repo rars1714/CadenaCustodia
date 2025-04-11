@@ -22,15 +22,17 @@ if ($resultado->num_rows === 1) {
         $_SESSION['usuario_id'] = $usuario['id_usuario'];
         $_SESSION['correo']     = $usuario['correo'];
         $_SESSION['nombre']     = $usuario['nombre']; 
+        $_SESSION['rol'] = $usuario['rol'];
         header("Location: /cadenacustodia/Admin/Evidencia/agregar_evidencia_admin.php");
         exit();
     }
     if (password_verify($contrasena, $usuario['contrasena_hash'])) {
         $_SESSION['usuario_id'] = $usuario['id_usuario'];
         $_SESSION['correo'] = $usuario['correo'];
-        $_SESSION['nombre'] = $usuario['nombre']; 
+        $_SESSION['nombre'] = $usuario['nombre'];
+        $_SESSION['rol'] = $usuario['rol'];
 
-        header("Location: /cadenacustodia/Evidencia/agregar_evidencia.php");
+        header("Location: /cadenacustodia/home.php");
         exit();
     } else {
         echo "<script>alert('Contraseña incorrecta'); window.location.href='login.php';</script>";

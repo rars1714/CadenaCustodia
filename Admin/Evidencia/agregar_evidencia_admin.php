@@ -82,7 +82,7 @@ $siguiente_id = $fila['ultimo_id'] + 1;
             <ul class="dropdown" id="dropdown-usuarios">
               <li><a href="../../Admin/Usuarios/agregar_usuario_admin.php">Agregar</a></li>
               <li class="separator"></li>
-              <li><a href="#">Permisos</a></li>
+              <li><a href="../Usuarios/permisos_admin.php">Permisos</a></li>
               <li class="separator"></li>
               <li><a href="../../Admin/Usuarios/modificar_usuario_admin.php">Consultar</a></li>
             </ul>
