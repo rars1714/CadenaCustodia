@@ -9,11 +9,11 @@ $nombre = $_POST["Nombre"];
 $apellido = $_POST["Apellido"];
 $despacho = $_POST["despacho"];
 $correo = $_POST["Correo"];
-$rol = $_POST["rol"];
+$id_rol = $_POST["id_rol"]; // ← se actualiza como ID
 
-$sql = "UPDATE usuarios SET Nombre=?, Apellido=?, despacho=?, Correo=?, rol=? WHERE id_usuario=?";
+$sql = "UPDATE usuarios SET Nombre=?, Apellido=?, despacho=?, Correo=?, id_rol=? WHERE id_usuario=?";
 $stmt = $conexion->prepare($sql);
-$stmt->bind_param("sssssi", $nombre, $apellido, $despacho, $correo, $rol, $id);
+$stmt->bind_param("ssssii", $nombre, $apellido, $despacho, $correo, $id_rol, $id);
 
 if ($stmt->execute()) {
     echo "Usuario actualizado correctamente.";

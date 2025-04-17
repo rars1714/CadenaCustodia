@@ -52,6 +52,7 @@ if ($conexion->connect_error) {
               <li><a href="../Evidencia/agregar_evidencia_admin.php">Agregar</a></li>
               <li class="separator"></li>
               <li><a href="../Evidencia/modificar_evidencia_admin.php">Consultar</a></li>
+              <li class="separator"></li>
             </ul>
           </li>
           <li class="navbar-dropdown">
@@ -62,6 +63,7 @@ if ($conexion->connect_error) {
               <li><a href="../Casos/agregar_caso_admin.php">Agregar</a></li>
               <li class="separator"></li>
               <li><a href="../Casos/modificar_caso_admin.php">Consultar</a></li>
+              <li class="separator"></li>
             </ul>
           </li>
           <li class="navbar-dropdown active">
@@ -71,9 +73,10 @@ if ($conexion->connect_error) {
             <ul class="dropdown" id="dropdown-usuarios">
               <li><a href="agregar_usuario_admin.php">Agregar</a></li>
               <li class="separator"></li>
-              <li><a href="#">Permisos</a></li>
+              <li><a href="permisos_admin.php">Permisos</a></li>
               <li class="separator"></li>
               <li><a href="modificar_usuario_admin.php">Consultar</a></li>
+              <li class="separator"></li>
             </ul>
           </li>
           <li><a href="#">Historial de accesos</a></li>

@@ -24,10 +24,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $despacho  = trim($_POST['despacho'] ?? '');
     $correo    = trim($_POST['Correo'] ?? '');
     $contrasena = trim($_POST['contrasena'] ?? '');
-    $rol       = strtolower(trim($_POST['rol'] ?? ''));
+    $rol_nombre       = strtolower(trim($_POST['rol'] ?? ''));
 
     // Validar que los campos requeridos no estén vacíos
-    if (empty($nombre) || empty($apellido) || empty($despacho) || empty($correo) || empty($contrasena) || empty($rol)) {
+    if (empty($nombre) || empty($apellido) || empty($despacho) || empty($correo) || empty($contrasena) || empty($rol_nombre)) {
         echo "Todos los campos son requeridos.";
         exit;
     }
@@ -38,41 +38,43 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
-    // Validar que el rol esté entre los permitidos
-    $roles_permitidos = ['abogado', 'perito', 'juez', 'fiscal', 'admin'];
-    if (!in_array($rol, $roles_permitidos)) {
-        echo "El rol ingresado no es válido.";
-        exit;
-    }
 
     // Encriptar la contraseña
     $contrasena_hash = password_hash($contrasena, PASSWORD_DEFAULT);
 
-    // Si se envió un id_usuario manualmente, se puede usar; de lo contrario, la base de datos lo generará automáticamente
-    // Preparar la sentencia SQL para insertar el nuevo usuario
-    // Se omite el campo id_usuario si se deja que sea autoincrementable
-    $stmt = $conn->prepare("INSERT INTO usuarios (nombre, apellido, despacho, correo, contrasena_hash, rol) VALUES (?, ?, ?, ?, ?, ?)");
-    if (!$stmt) {
-        echo "Error en la preparación: " . $conn->error;
+    // Buscar el ID del rol en la tabla roles
+    $rol_stmt = $conn->prepare("SELECT id_rol FROM roles WHERE nombre = ?");
+    $rol_stmt->bind_param("s", $rol_nombre);
+    $rol_stmt->execute();
+    $rol_result = $rol_stmt->get_result();
+
+    if ($rol_result->num_rows === 0) {
+        echo "El rol especificado no existe.";
         exit;
     }
 
-    // Asociar parámetros a la sentencia preparada
-    $stmt->bind_param("ssssss", $nombre, $apellido, $despacho, $correo, $contrasena_hash, $rol);
+    $rol_row = $rol_result->fetch_assoc();
+    $id_rol = $rol_row['id_rol'];
+    $rol_stmt->close();
 
-    // Ejecutar la sentencia y verificar que se inserte correctamente
-    if ($stmt->execute()) {
-        echo "Registro exitoso.";
+    $stmt = $conn->prepare("INSERT INTO usuarios (nombre, apellido, despacho, correo, contrasena_hash, id_rol) VALUES (?, ?, ?, ?, ?, ?)");
+        if (!$stmt) {
+            echo "Error en la preparación: " . $conn->error;
+            exit;
+        }
+
+        $stmt->bind_param("sssssi", $nombre, $apellido, $despacho, $correo, $contrasena_hash, $id_rol);
+
+        if ($stmt->execute()) {
+            echo "Registro exitoso.";
+        } else {
+            echo "Error en el registro: " . $stmt->error;
+        }
+
+        $stmt->close();
     } else {
-        // Si hay error, por ejemplo, si el correo ya existe (violación de UNIQUE)
-        echo "Error en el registro: " . $stmt->error;
+        echo "Acceso no autorizado.";
     }
-
-    // Cerrar la sentencia
-    $stmt->close();
-} else {
-    echo "Acceso no autorizado.";
-}
 
 // Cerrar la conexión
 $conn->close();

@@ -1,4 +1,4 @@
-<?php
+<?php/*
 $permisos = [
     'Abogado' => [
         'ingresar_evidencia' => true,
@@ -25,3 +25,5 @@ $permisos = [
         'consultar_casos' => 'propios',
     ],
 ];
+*/
+?>

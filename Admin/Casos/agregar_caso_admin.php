@@ -58,6 +58,7 @@ $siguiente_id = $fila['ultimo_id'] + 1;
               <li><a href="../Evidencia/agregar_evidencia_admin.php">Agregar</a></li>
               <li class="separator"></li>
               <li><a href="../Evidencia/modificar_evidencia_admin.php">Consultar</a></li>
+              <li class="separator"></li>
             </ul>
           </li>
           <li class="navbar-dropdown active">
@@ -68,6 +69,7 @@ $siguiente_id = $fila['ultimo_id'] + 1;
               <li><a href="agregar_caso_admin.php">Agregar</a></li>
               <li class="separator"></li>
               <li><a href="modificar_caso_admin.php">Consultar</a></li>
+              <li class="separator"></li>
             </ul>
           </li>
           <li class="navbar-dropdown">
@@ -77,9 +79,10 @@ $siguiente_id = $fila['ultimo_id'] + 1;
             <ul class="dropdown" id="dropdown-usuarios">
               <li><a href="../Usuarios/agregar_usuario_admin.php">Agregar</a></li>
               <li class="separator"></li>
-              <li><a href="#">Permisos</a></li>
+              <li><a href="../Usuarios/permisos_admin.php">Permisos</a></li>
               <li class="separator"></li>
-              <li><a href="../Usuarios/modificar_usuario_admin.php">Modificar</a></li>
+              <li><a href="../Usuarios/modificar_usuario_admin.php">Consultar</a></li>
+              <li class="separator"></li>
             </ul>
           </li>
           <li><a href="#">Historial de accesos</a></li>

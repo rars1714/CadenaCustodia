@@ -1,24 +1,23 @@
 <?php
 session_start();
 
-// Verificar si NO hay sesión activa
-if (!isset($_SESSION['usuario_id'])) {
+if (!isset($_SESSION['usuario_id']) || !isset($_SESSION['id_rol'])) {
     header("Location: ../Login/login.php");
     exit();
 }
 
-require_once '../permisos.php';
+require_once '../validar_permisos.php';
 
 $conexion = new mysqli("localhost", "root", "", "cadena_custodia");
 if ($conexion->connect_error) {
     die("Error de conexión: " . $conexion->connect_error);
 }
 
-$rol = ucfirst(strtolower(trim($_SESSION['rol'])));
-$userId = $_SESSION['usuario_id'];
+$id_usuario = $_SESSION['usuario_id'];
+$id_rol     = $_SESSION['id_rol'];
 
-// Validar permiso de consulta
-if (!isset($permisos[$rol]['consultar_evidencia']) || $permisos[$rol]['consultar_evidencia'] === false) {
+// Verificar si tiene permiso para consultar evidencia
+if (!tiene_permiso($conexion, $id_rol, 'consultar_evidencia')) {
     echo "<script>
         alert('No tiene permiso para consultar evidencia.');
         window.location.href = '../home.php';
@@ -26,24 +25,48 @@ if (!isset($permisos[$rol]['consultar_evidencia']) || $permisos[$rol]['consultar
     exit();
 }
 
-// Construcción de consulta según permisos
-if ($permisos[$rol]['consultar_evidencia'] === 'todas') {
-    $sql = "SELECT id_evidencia, id_caso, id_usuario, tipo_evidencia, descripcion, nombre_archivo FROM evidencias";
-    $resultado = $conexion->query($sql);
-} elseif ($permisos[$rol]['consultar_evidencia'] === 'propias') {
-    $sql = "SELECT id_evidencia, id_caso, id_usuario, tipo_evidencia, descripcion, nombre_archivo 
-            FROM evidencias WHERE id_usuario = ?";
-    $stmt = $conexion->prepare($sql);
-    $stmt->bind_param("i", $userId);
-    $stmt->execute();
-    $resultado = $stmt->get_result();
-} else {
+$sql = "SELECT id_evidencia, id_caso, id_usuario, tipo_evidencia, descripcion, nombre_archivo 
+        FROM evidencias WHERE id_usuario = ?";
+$stmt = $conexion->prepare($sql);
+$stmt->bind_param("i", $id_usuario);
+$stmt->execute();
+$resultado = $stmt->get_result();
+?>
+
+
+<?php
+session_start();
+
+if (!isset($_SESSION['usuario_id']) || !isset($_SESSION['id_rol'])) {
+    header("Location: ../Login/login.php");
+    exit();
+}
+
+require_once '../validar_permisos.php';
+
+$conexion = new mysqli("localhost", "root", "", "cadena_custodia");
+if ($conexion->connect_error) {
+    die("Error de conexión: " . $conexion->connect_error);
+}
+
+$id_usuario = $_SESSION['usuario_id'];
+$id_rol     = $_SESSION['id_rol'];
+
+// Verificar si tiene permiso para consultar evidencia
+if (!tiene_permiso($conexion, $id_rol, 'consultar_casos')) {
     echo "<script>
-        alert('Acceso denegado.');
+        alert('No tiene permiso para consultar casos.');
         window.location.href = '../home.php';
     </script>";
     exit();
 }
+
+$sql = "SELECT id_evidencia, id_caso, id_usuario, tipo_evidencia, descripcion, nombre_archivo 
+        FROM evidencias WHERE id_usuario = ?";
+$stmt = $conexion->prepare($sql);
+$stmt->bind_param("i", $id_usuario);
+$stmt->execute();
+$resultado = $stmt->get_result();
 ?>
 
 <!DOCTYPE html>

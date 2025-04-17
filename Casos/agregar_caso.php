@@ -1,33 +1,33 @@
 <?php
 session_start();
 
-if (!isset($_SESSION['usuario_id'])) {
+if (!isset($_SESSION['usuario_id']) || !isset($_SESSION['id_rol'])) {
     header("Location: ../Login/login.php");
     exit();
 }
 
-require_once '../permisos.php';
-
-$rol = ucfirst(strtolower(trim($_SESSION['rol'])));
-if (!isset($permisos[$rol]['crear_casos']) || !$permisos[$rol]['crear_casos']) {
-    echo "<script>
-        alert('No tiene permiso para agregar casos.');
-        window.location.href = '../home.php';
-    </script>";
-    exit();
-}
+require_once '../validar_permisos.php';
 
 $conexion = new mysqli("localhost", "root", "", "cadena_custodia");
 if ($conexion->connect_error) {
     die("Error de conexión: " . $conexion->connect_error);
 }
 
-// Consulta del último id_caso
+$id_usuario = $_SESSION['usuario_id'];
+$id_rol     = $_SESSION['id_rol'];
+
+if (!tiene_permiso($conexion, $id_rol, 'crear_casos')) {
+    echo "<script>
+        alert('No tiene permiso para crear casos.');
+        window.location.href = '../home.php';
+    </script>";
+    exit();
+}
+
 $resultado = $conexion->query("SELECT MAX(id_caso) AS ultimo_id FROM casos");
 $fila = $resultado->fetch_assoc();
 $siguiente_id = $fila['ultimo_id'] + 1;
 ?>
-
 
 <!DOCTYPE html>
 <html lang="es">
@@ -71,6 +71,7 @@ $siguiente_id = $fila['ultimo_id'] + 1;
               <li><a href="../Evidencia/agregar_evidencia.php">Agregar</a></li>
               <li class="separator"></li>
               <li><a href="../Evidencia/modificar_evidencia.php">Consultar</a></li>
+              <li class="separator"></li>
             </ul>
           </li>
           <li class="navbar-dropdown active">
@@ -81,6 +82,7 @@ $siguiente_id = $fila['ultimo_id'] + 1;
               <li><a href="agregar_caso.php">Agregar</a></li>
               <li class="separator"></li>
               <li><a href="modificar_caso.php">Consultar</a></li>
+              <li class="separator"></li>
             </ul>
           </li>
           <li><a href="../Login/login.php">Salir</a></li>

@@ -9,7 +9,10 @@ if ($conexion->connect_error) {
 $correo = $_POST['correo'];
 $contrasena = $_POST['contrasena'];
 
-$query = "SELECT * FROM usuarios WHERE correo = ?";
+$query = "SELECT u.*, r.nombre as rol_nombre
+          FROM usuarios u 
+          JOIN roles r ON u.id_rol = r.id_rol 
+          WHERE u.correo = ?";
 $stmt = $conexion->prepare($query);
 $stmt->bind_param("s", $correo);
 $stmt->execute();
@@ -21,17 +24,23 @@ if ($resultado->num_rows === 1) {
     if ($correo === "admin@admin.com" && $contrasena === "admin") {
         $_SESSION['usuario_id'] = $usuario['id_usuario'];
         $_SESSION['correo']     = $usuario['correo'];
-        $_SESSION['nombre']     = $usuario['nombre']; 
-        $_SESSION['rol'] = $usuario['rol'];
+        $_SESSION['nombre'] = $usuario['nombre'];
+        $_SESSION['rol_nombre'] = $usuario['rol_nombre'];
+        $_SESSION['id_rol'] = $usuario['id_rol'];
+        
         header("Location: /cadenacustodia/Admin/Evidencia/agregar_evidencia_admin.php");
         exit();
     }
+
     if (password_verify($contrasena, $usuario['contrasena_hash'])) {
         $_SESSION['usuario_id'] = $usuario['id_usuario'];
-        $_SESSION['correo'] = $usuario['correo'];
+        $_SESSION['correo']     = $usuario['correo'];
+        $_SESSION['nombre']     = $usuario['nombre'];
+        $_SESSION['id_rol'] = $usuario['id_rol'];
         $_SESSION['nombre'] = $usuario['nombre'];
-        $_SESSION['rol'] = $usuario['rol'];
-
+        $_SESSION['rol_nombre'] = $usuario['rol_nombre'];
+        $_SESSION['id_rol'] = $usuario['id_rol'];
+        
         header("Location: /cadenacustodia/home.php");
         exit();
     } else {
@@ -40,5 +49,4 @@ if ($resultado->num_rows === 1) {
 } else {
     echo "<script>alert('Correo no registrado'); window.location.href='login.php';</script>";
 }
-
 ?>

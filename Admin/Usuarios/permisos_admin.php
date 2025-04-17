@@ -1,35 +1,37 @@
 <?php
 session_start();
-// Verificar si NO hay sesión activa
 if (!isset($_SESSION['usuario_id'])) {
-  header("Location: ../../Login/login.php");
-  exit();
+    header("Location: ../../Login/login.php");
+    exit();
 }
-// Conexión a la base de datos
 $conexion = new mysqli("localhost", "root", "", "cadena_custodia");
 if ($conexion->connect_error) {
     die("Error de conexión: " . $conexion->connect_error);
 }
 
-$sql = "SELECT id_evidencia, id_caso, id_usuario, tipo_evidencia, descripcion, nombre_archivo FROM evidencias";
-$resultado = $conexion->query($sql);
+// Obtener roles y permisos
+$roles = $conexion->query("SELECT id_rol, nombre FROM roles");
+$permisos = [];
+$res = $conexion->query("SELECT id_rol, accion, valor FROM permisos_roles");
+while ($row = $res->fetch_assoc()) {
+    $permisos[$row['id_rol']][$row['accion']] = $row['valor'];
+}
 ?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Modificar Evidencia</title>
+  <title>Modificar Permisos</title>
   <link rel="stylesheet" href="../../css/modificar.css">
-  <!-- Fuentes -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../../css/navbar.css">
   <link rel="stylesheet" href="../../css/forms.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap" rel="stylesheet" />
 </head>
 <body>
-<!-- ========== Navbar ========== -->
-<nav class="navbar">
+  <!-- ========== Navbar ========== -->
+  <nav class="navbar">
     <div class="container">
       <div class="navbar-header">
         <button class="navbar-toggler" data-toggle="open-navbar1">
@@ -43,21 +45,19 @@ $resultado = $conexion->query($sql);
       </div>
       <div class="navbar-menu" id="open-navbar1">
         <ul class="navbar-nav">
-          <li class="navbar-item">
+        <li class="navbar-item">
             <a href="#">
               <?php echo htmlspecialchars($_SESSION['nombre']); ?> (ID: <?php echo htmlspecialchars($_SESSION['usuario_id']); ?>)
             </a>
           </li>
-          <li class="navbar-dropdown active">
+          <li class="navbar-dropdown">
             <a href="#" class="dropdown-toggler" data-dropdown="dropdown-evidencia">
               Evidencia <i class="fa fa-angle-down"></i>
             </a>
             <ul class="dropdown" id="dropdown-evidencia">
-              <!-- Muestra el nombre y el ID del usuario logueado -->
+              <li><a href="../Evidencia/agregar_evidencia_admin.php">Agregar</a></li>
               <li class="separator"></li>
-              <li><a href="agregar_evidencia_admin.php">Agregar</a></li>
-              <li class="separator"></li>
-              <li><a href="modificar_evidencia_admin.php">Consultar</a></li>
+              <li><a href="../Evidencia/modificar_evidencia_admin.php">Consultar</a></li>
               <li class="separator"></li>
             </ul>
           </li>
@@ -66,71 +66,128 @@ $resultado = $conexion->query($sql);
               Casos <i class="fa fa-angle-down"></i>
             </a>
             <ul class="dropdown" id="dropdown-casos">
-              <li><a href="../../Admin/Casos/agregar_caso_admin.php">Agregar</a></li>
+              <li><a href="../Casos/agregar_caso_admin.php">Agregar</a></li>
               <li class="separator"></li>
-              <li><a href="../../Admin/Casos/modificar_caso_admin.php">Consultar</a></li>
+              <li><a href="../Casos/modificar_caso_admin.php">Consultar</a></li>
               <li class="separator"></li>
             </ul>
           </li>
-          <li class="navbar-dropdown">
+          <li class="navbar-dropdown active">
             <a href="#" class="dropdown-toggler" data-dropdown="dropdown-usuarios">
               Usuarios <i class="fa fa-angle-down"></i>
             </a>
             <ul class="dropdown" id="dropdown-usuarios">
-              <li><a href="../../Admin/Usuarios/agregar_usuario_admin.php">Agregar</a></li>
+              <li><a href="agregar_usuario_admin.php">Agregar</a></li>
               <li class="separator"></li>
-              <li><a href="../../Admin/Usuarios/modificar_usuario_admin.php">Consultar</a></li>
+              <li><a href="#">Permisos</a></li>
+              <li class="separator"></li>
+              <li><a href="modificar_usuario_admin.php">Consultar</a></li>
+              <li class="separator"></li>
             </ul>
           </li>
           <li><a href="#">Historial de accesos</a></li>
-          <li><a href="../../Login/logout.php">Salir</a></li>
+          <li><a href="../../Login/login.php">Salir</a></li>
         </ul>
       </div>
     </div>
   </nav>
 
-  <!-- ========== Tabla de Evidencia ========== -->
+  <!-- ========== Tabla de Permisos ========== -->
   <table>
     <thead>
       <tr>
-        <th>ID Evidencia</th>
-        <th>ID Caso</th>
-        <th>ID Usuario</th>
-        <th>Tipo de Evidencia</th>
-        <th>Descripción</th>
-        <th>Nombre de Archivo</th>
+        <th>Rol</th>
+        <th>Ingresar Evidencia</th>
+        <th>Crear Casos</th>
+        <th>Consultar Evidencia</th>
+        <th>Consultar Casos</th>
         <th>Acciones</th>
       </tr>
     </thead>
     <tbody>
-      <?php while ($fila = $resultado->fetch_assoc()) { ?>
-      <tr data-id="<?= $fila['id_evidencia'] ?>">
-        <td><?= $fila['id_evidencia'] ?></td>
-        <td><input type="text" value="<?= $fila['id_caso'] ?>" disabled></td>
-        <td><input type="text" value="<?= $fila['id_usuario'] ?>" disabled></td>
+      <?php while ($rol = $roles->fetch_assoc()):
+        $id = $rol['id_rol'];
+        $p = $permisos[$id] ?? [];
+      ?>
+      <tr data-id="<?= $id ?>">
+        <td><?= htmlspecialchars($rol['nombre']) ?></td>
         <td>
           <select disabled>
-            <option value="documento" <?= $fila['tipo_evidencia'] == 'documento' ? 'selected' : '' ?>>Documento</option>
-            <option value="imagen" <?= $fila['tipo_evidencia'] == 'imagen' ? 'selected' : '' ?>>Imagen</option>
-            <option value="video" <?= $fila['tipo_evidencia'] == 'video' ? 'selected' : '' ?>>Video</option>
-            <option value="audio" <?= $fila['tipo_evidencia'] == 'audio' ? 'selected' : '' ?>>Audio</option>
-            <option value="otro" <?= $fila['tipo_evidencia'] == 'otro' ? 'selected' : '' ?>>Otro</option>
+            <option value="1" <?= !empty($p['ingresar_evidencia']) ? 'selected' : '' ?>>Sí</option>
+            <option value="0" <?= empty($p['ingresar_evidencia']) ? 'selected' : '' ?>>No</option>
           </select>
         </td>
-        <td><input type="text" value="<?= $fila['descripcion'] ?>" disabled></td>
-        <td><input type="text" value="<?= $fila['nombre_archivo'] ?>" disabled></td>
+        <td>
+          <select disabled>
+            <option value="1" <?= !empty($p['crear_casos']) ? 'selected' : '' ?>>Sí</option>
+            <option value="0" <?= empty($p['crear_casos']) ? 'selected' : '' ?>>No</option>
+          </select>
+        </td>
+        <td>
+          <select disabled>
+            <option value="1" <?= !empty($p['consultar_evidencia']) ? 'selected' : '' ?>>Sí</option>
+            <option value="0" <?= empty($p['consultar_evidencia']) ? 'selected' : '' ?>>No</option>
+          </select>
+        </td>
+        <td>
+          <select disabled>
+            <option value="1" <?= !empty($p['consultar_casos']) ? 'selected' : '' ?>>Sí</option>
+            <option value="0" <?= empty($p['consultar_casos']) ? 'selected' : '' ?>>No</option>
+          </select>
+        </td>
         <td>
           <button class="edit-btn">Editar</button>
           <button class="save-btn" style="display:none;">Guardar</button>
         </td>
       </tr>
-      <?php } ?>
+      <?php endwhile; ?>
     </tbody>
   </table>
 
   <!-- Scripts -->
   <script src="../../js/navbar.js"></script>
-  <script src="../../js/forms.js"></script>
-  <script src="../../js/modificar/modificar_evidencia.js"></script>
+  <script>
+    document.querySelectorAll(".edit-btn").forEach(button => {
+      button.addEventListener("click", function () {
+        let row = this.closest("tr");
+        row.querySelectorAll("select").forEach(select => select.removeAttribute("disabled"));
+        row.querySelector(".edit-btn").style.display = "none";
+        row.querySelector(".save-btn").style.display = "inline-block";
+      });
+    });
+
+    document.querySelectorAll(".save-btn").forEach(button => {
+      button.addEventListener("click", function () {
+        let row = this.closest("tr");
+        let id = row.getAttribute("data-id");
+        let selects = row.querySelectorAll("select");
+        let acciones = [
+          'ingresar_evidencia',
+          'crear_casos',
+          'consultar_evidencia',
+          'consultar_casos',
+        ];
+
+        let formData = new FormData();
+        formData.append("id_rol", id);
+        selects.forEach((select, i) => {
+          formData.append("permisos[" + acciones[i] + "]", select.value);
+        });
+
+        fetch("actualizar_permisos.php", {
+          method: "POST",
+          body: formData
+        })
+        .then(response => response.text())
+        .then(data => {
+          alert(data);
+          row.querySelectorAll("select").forEach(input => input.setAttribute("disabled", "disabled"));
+          row.querySelector(".edit-btn").style.display = "inline-block";
+          row.querySelector(".save-btn").style.display = "none";
+        })
+        .catch(error => console.error("Error:", error));
+      });
+    });
+  </script>
 </body>
 </html>

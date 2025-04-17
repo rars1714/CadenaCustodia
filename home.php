@@ -2,13 +2,13 @@
 // cadenacustodia/Evidencia/agregar_evidencia.php
 session_start();
 // Verificar si NO hay sesión activa
-if (!isset($_SESSION['usuario_id'])) {
+
+if (!isset($_SESSION['usuario_id']) || !isset($_SESSION['id_rol'])) {
     header("Location: Login/login.php");
     exit();
 }
 
-$rol = $_SESSION['rol']; 
-
+require_once 'validar_permisos.php';
 
   $conexion = new mysqli("localhost", "root", "", "cadena_custodia");
 if ($conexion->connect_error) {

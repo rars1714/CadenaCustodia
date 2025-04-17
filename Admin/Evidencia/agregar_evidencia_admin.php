@@ -85,6 +85,7 @@ $siguiente_id = $fila['ultimo_id'] + 1;
               <li><a href="../Usuarios/permisos_admin.php">Permisos</a></li>
               <li class="separator"></li>
               <li><a href="../../Admin/Usuarios/modificar_usuario_admin.php">Consultar</a></li>
+              <li class="separator"></li>
             </ul>
           </li>
           <li><a href="#">Historial de accesos</a></li>

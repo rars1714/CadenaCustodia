@@ -15,7 +15,6 @@ if ($conn->connect_error) {
 
 // Verificar que se envíe el formulario mediante POST
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Recoger y sanitizar los datos del formulario
     // Se ignoran 'id_caso' y 'fecha_inicio' pues la base de datos asigna automáticamente estos valores.
     $nombre_caso = trim($_POST['nombre_caso'] ?? '');
     $descripcion = trim($_POST['descripcion'] ?? '');

@@ -6,7 +6,8 @@ if ($conexion->connect_error) {
 
 $resultado = $conexion->query("SELECT MAX(id_usuario) AS ultimo_id FROM usuarios");
 $fila = $resultado->fetch_assoc();
-$siguiente_id_usuario = $fila['ultimo_id'] + 1
+$siguiente_id_usuario = $fila['ultimo_id'] + 1;
+$roles_result = $conexion->query("SELECT nombre FROM roles");
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -120,10 +121,9 @@ $siguiente_id_usuario = $fila['ultimo_id'] + 1
         <div class="formbold-input-flex">
           <div>
             <select name="rol" id="rol" class="formbold-form-input">
-              <option value="abogado">Abogado</option>
-              <option value="perito">Perito</option>
-              <option value="juez">Juez</option>
-              <option value="fiscal">Fiscal</option>
+              <?php while ($rol = $roles_result->fetch_assoc()) { ?>
+                <option value="<?= $rol['nombre'] ?>"><?= ucfirst($rol['nombre']) ?></option>
+              <?php } ?>
             </select>
             <label for="rol" class="formbold-form-label">Rol</label>
           </div>

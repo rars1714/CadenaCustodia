@@ -1,28 +1,30 @@
 <?php
 session_start();
 
-if (!isset($_SESSION['usuario_id'])) {
+if (!isset($_SESSION['usuario_id']) || !isset($_SESSION['id_rol'])) {
     header("Location: ../Login/login.php");
     exit();
 }
 
-require_once '../permisos.php';
-
-$rol = ucfirst(strtolower(trim($_SESSION['rol'])));
-$id_usuario = $_SESSION['usuario_id'];
-
-// Verifica permiso de consulta
-if (!isset($permisos[$rol]['consultar_casos']) || $permisos[$rol]['consultar_casos'] === false) {
-    echo "<script>alert('No tiene permiso para consultar casos.'); window.location.href = '../home.php';</script>";
-    exit();
-}
+require_once '../validar_permisos.php';
 
 $conexion = new mysqli("localhost", "root", "", "cadena_custodia");
 if ($conexion->connect_error) {
     die("Error de conexión: " . $conexion->connect_error);
 }
 
-// Consulta solo los casos del usuario
+$id_usuario = $_SESSION['usuario_id'];
+$id_rol     = $_SESSION['id_rol'];
+
+// Verificar si tiene permiso para consultar evidencia
+if (!tiene_permiso($conexion, $id_rol, 'consultar_casos')) {
+    echo "<script>
+        alert('No tiene permiso para consultar casos.');
+        window.location.href = '../home.php';
+    </script>";
+    exit();
+}
+
 $sql = "SELECT id_caso, nombre_caso, fecha_creacion, descripcion, estado 
         FROM casos 
         WHERE id_usuario = ?";
@@ -30,8 +32,8 @@ $stmt = $conexion->prepare($sql);
 $stmt->bind_param("i", $id_usuario);
 $stmt->execute();
 $resultado = $stmt->get_result();
-
 ?>
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -73,6 +75,7 @@ $resultado = $stmt->get_result();
               <li><a href="../Evidencia/agregar_evidencia.php">Agregar</a></li>
               <li class="separator"></li>
               <li><a href="../Evidencia/modificar_evidencia.php">Consultar</a></li>
+              <li class="separator"></li>
             </ul>
           </li>
           <li class="navbar-dropdown active">
@@ -83,6 +86,7 @@ $resultado = $stmt->get_result();
               <li><a href="agregar_caso.php">Agregar</a></li>
               <li class="separator"></li>
               <li><a href="modificar_caso.php">Consultar</a></li>
+              <li class="separator"></li>
             </ul>
           </li>
           <li><a href="../Login/logout.php">Salir</a></li>

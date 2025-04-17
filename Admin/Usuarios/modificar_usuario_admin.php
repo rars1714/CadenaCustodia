@@ -10,8 +10,18 @@ if ($conexion->connect_error) {
     die("Error de conexión: " . $conexion->connect_error);
 }
 
-$sql = "SELECT id_usuario, Nombre, Apellido, despacho, Correo, rol FROM usuarios";
+// Obtener usuarios con nombre de rol
+$sql = "SELECT u.id_usuario, u.Nombre, u.Apellido, u.despacho, u.Correo, u.id_rol, r.nombre AS rol_nombre
+        FROM usuarios u
+        JOIN roles r ON u.id_rol = r.id_rol";
 $resultado = $conexion->query($sql);
+
+$roles_query = $conexion->query("SELECT id_rol, nombre FROM roles");
+$roles = [];
+while ($row = $roles_query->fetch_assoc()) {
+    $roles[$row['id_rol']] = $row['nombre'];
+}
+
 ?>
 
 <!DOCTYPE html>
@@ -110,12 +120,13 @@ $resultado = $conexion->query($sql);
         <td><input type="text" value="<?= $fila['despacho'] ?>" disabled></td>
         <td><input type="text" value="<?= $fila['Correo'] ?>" disabled></td>
         <td>
-          <select disabled>
-            <option value="abogado" <?= $fila['rol'] == 'abogado' ? 'selected' : '' ?>>Abogado</option>
-            <option value="perito" <?= $fila['rol'] == 'perito' ? 'selected' : '' ?>>Perito</option>
-            <option value="juez" <?= $fila['rol'] == 'juez' ? 'selected' : '' ?>>Juez</option>
-            <option value="fiscal" <?= $fila['rol'] == 'fiscal' ? 'selected' : '' ?>>Fiscal</option>
-          </select>
+        <select disabled>
+          <?php foreach ($roles as $id_rol => $nombre_rol): ?>
+            <option value="<?= $id_rol ?>" <?= $fila['id_rol'] == $id_rol ? 'selected' : '' ?>>
+              <?= htmlspecialchars($nombre_rol) ?>
+            </option>
+          <?php endforeach; ?>
+        </select>
         </td>
         <td>
           <button class="edit-btn">Editar</button>
@@ -127,49 +138,8 @@ $resultado = $conexion->query($sql);
   </table>
   <script src="../../js/navbar.js"></script>
   <script src="../../js/forms.js"></script>
-  <script>
-    document.querySelectorAll(".edit-btn").forEach(button => {
-      button.addEventListener("click", function () {
-          let row = this.closest("tr");
-          row.querySelectorAll("input, select").forEach(input => input.removeAttribute("disabled"));
-          row.querySelector(".edit-btn").style.display = "none";
-          row.querySelector(".save-btn").style.display = "inline-block";
-      });
-    });
+  <script src="../../js/modificar/modificar_usuario.js"></script>
 
-    document.querySelectorAll(".save-btn").forEach(button => {
-      button.addEventListener("click", function () {
-      let row = this.closest("tr");
-      let id = row.getAttribute("data-id");
-      let nombre = row.cells[1].querySelector("input").value;
-      let apellido = row.cells[2].querySelector("input").value;
-      let despacho = row.cells[3].querySelector("input").value;
-      let correo = row.cells[4].querySelector("input").value;
-      let rol = row.cells[5].querySelector("select").value;
-
-      let formData = new FormData();
-      formData.append("id", id);
-      formData.append("Nombre", nombre);
-      formData.append("Apellido", apellido);
-      formData.append("despacho", despacho);
-      formData.append("Correo", correo);
-      formData.append("rol", rol);
-
-      fetch("actualizar_usuario.php", {
-          method: "POST",
-          body: formData
-      })
-      .then(response => response.text())
-      .then(data => {
-          alert(data);
-          row.querySelectorAll("input, select").forEach(input => input.setAttribute("disabled", "disabled"));
-          row.querySelector(".edit-btn").style.display = "inline-block";
-          row.querySelector(".save-btn").style.display = "none";
-      })
-      .catch(error => console.error("Error:", error));
-      });
-    });
-</script>
 </body>
 </html>
 
