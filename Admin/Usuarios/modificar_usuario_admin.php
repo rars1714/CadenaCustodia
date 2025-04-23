@@ -49,7 +49,13 @@ while ($row = $roles_query->fetch_assoc()) {
         <span></span>
       </button>
       <a href="#">
-        <img src="../../images/techlab.png" alt="Legal Tech" style="width:150px; height:auto;">
+        <img
+          src="<?= $_SESSION['id_rol'] === 4 
+                    ? '../../images/techlab.png' 
+                    : '../images/techlab.png' ?>"
+          alt="Legal Tech"
+          style="width:150px; height:auto;"
+        >
       </a>
     </div>
     <div class="navbar-menu" id="open-navbar1">
@@ -69,16 +75,16 @@ while ($row = $roles_query->fetch_assoc()) {
             <li class="separator"></li>
             <li>
               <a href="<?= $_SESSION['id_rol'] === 4 
-                            ? 'agregar_evidencia_admin.php' 
-                            : 'agregar_evidencia.php' ?>">
+                            ? '../../Admin/Evidencia/agregar_evidencia_admin.php' 
+                            : '../Evidencia/agregar_evidencia.php' ?>">
                 Agregar
               </a>
             </li>
             <li class="separator"></li>
             <li>
               <a href="<?= $_SESSION['id_rol'] === 4 
-                            ? 'modificar_evidencia_admin.php' 
-                            : 'modificar_evidencia.php' ?>">
+                            ? '../../Admin/Evidencia/modificar_evidencia_admin.php' 
+                            : '../Evidencia/modificar_evidencia.php' ?>">
                 Consultar
               </a>
             </li>
@@ -95,7 +101,7 @@ while ($row = $roles_query->fetch_assoc()) {
             <li>
               <a href="<?= $_SESSION['id_rol'] === 4 
                             ? '../../Admin/Casos/agregar_caso_admin.php' 
-                            : '../../Casos/agregar_caso.php' ?>">
+                            : '../Casos/agregar_caso.php' ?>">
                 Agregar
               </a>
             </li>
@@ -103,7 +109,7 @@ while ($row = $roles_query->fetch_assoc()) {
             <li>
               <a href="<?= $_SESSION['id_rol'] === 4 
                             ? '../../Admin/Casos/modificar_caso_admin.php' 
-                            : '../../Casos/modificar_caso.php' ?>">
+                            : '../Casos/modificar_caso.php' ?>">
                 Consultar
               </a>
             </li>
@@ -127,14 +133,21 @@ while ($row = $roles_query->fetch_assoc()) {
             </ul>
           </li>
           <!-- HISTORIAL DE ACCESOS (solo admin) -->
-          <li><a href="historial_accesos.php">Historial de accesos</a></li>
+          <li><a href="../../Admin/Usuarios/historial_accesos.php">Historial de accesos</a></li>
         <?php endif; ?>
 
-        <li><a href="../../Login/logout.php">Salir</a></li>
+        <li>
+          <a href="<?= $_SESSION['id_rol'] === 4 
+                        ? '../../Login/logout.php' 
+                        : '../Login/logout.php' ?>">
+            Salir
+          </a>
+        </li>
       </ul>
     </div>
   </div>
 </nav>
+
 
   <table>
     <thead>

@@ -1,101 +1,102 @@
 <?php
-// registro_evidencia.php
+session_start();
 
-// Configuración de la conexión a la base de datos
-$db_host = "localhost";
-$db_user = "root";
-$db_pass = "";
-$db_name = "cadena_custodia";
+// 1) Verificar sesión
+if (!isset($_SESSION['usuario_id']) || !isset($_SESSION['id_rol'])) {
+    header("Location: ../Login/login.php");
+    exit();
+}
 
-// Conexión a la base de datos
-$conn = new mysqli($db_host, $db_user, $db_pass, $db_name);
+// 2) Conexión
+$conn = new mysqli("localhost", "root", "", "cadena_custodia");
 if ($conn->connect_error) {
     die("Error de conexión: " . $conn->connect_error);
 }
 
-// Verificar que se envíe el formulario mediante POST
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Recoger y sanitizar los datos del formulario
-    $id_caso = trim($_POST['id_caso'] ?? '');
-    $id_usuario = trim($_POST['id_usuario'] ?? '');
-    $tipo_evidencia = strtolower(trim($_POST['tipo_evidencia'] ?? ''));
-    $descripcion = trim($_POST['Descripcion'] ?? '');  // Se recoge la descripción, aunque la tabla no la incluya
-
-    // Validar que los campos requeridos estén completos y que se haya adjuntado un archivo
-    if (empty($id_caso) || empty($id_usuario) || empty($tipo_evidencia) || !isset($_FILES['archivo'])) {
-        echo "Todos los campos son requeridos y se debe adjuntar un archivo.";
-        exit;
-    }
-
-    // Validar que el tipo de evidencia sea uno de los permitidos
-    $tipos_permitidos = ['documento', 'imagen', 'video', 'audio', 'otro'];
-    if (!in_array($tipo_evidencia, $tipos_permitidos)) {
-        echo "El tipo de evidencia no es válido.";
-        exit;
-    }
-
-    // Procesar la carga del archivo
-    $uploadDir = 'uploads/'; // Directorio de destino (asegúrate de que exista y tenga permisos de escritura)
-    if (!file_exists($uploadDir)) {
-        mkdir($uploadDir, 0777, true);
-    }
-
-    // Se procesa el primer archivo en caso de que se hayan enviado múltiples
-    $file = $_FILES['archivo'];
-    if ($file['error'] !== UPLOAD_ERR_OK) {
-        echo "Error en la carga del archivo.";
-        exit;
-    }
-
-    // Nombre original y extensión
-    $originalName = basename($file['name']);
-    $extension = pathinfo($originalName, PATHINFO_EXTENSION);
-    // Generar un nombre único para evitar colisiones
-    $newFileName = uniqid('evid_', true) . '.' . $extension;
-    $targetFilePath = $uploadDir . $newFileName;
-
-    // Mover el archivo subido al directorio destino
-    if (!move_uploaded_file($file['tmp_name'], $targetFilePath)) {
-        echo "Error al guardar el archivo.";
-        exit;
-    }
-
-    // Calcular el hash SHA-3 del archivo para garantizar su integridad
-    $hash_sha3 = hash_file('sha3-256', $targetFilePath);
-
-    // Obtener el tamaño del archivo
-    $tamano_archivo = filesize($targetFilePath);
-
-    // Preparar la sentencia SQL para insertar la evidencia en la base de datos
-    $stmt = $conn->prepare("INSERT INTO evidencias (id_caso, id_usuario, tipo_evidencia, nombre_archivo, ruta_archivo, hash_sha3, tamano_archivo) VALUES (?, ?, ?, ?, ?, ?, ?)");
-    if (!$stmt) {
-        echo "Error en la preparación: " . $conn->error;
-        exit;
-    }
-
-    // Asociar los parámetros (se asume que id_caso e id_usuario son enteros)
-    $stmt->bind_param("iissssi", $id_caso, $id_usuario, $tipo_evidencia, $originalName, $targetFilePath, $hash_sha3, $tamano_archivo);
-
-
-
-    // Ejecutar la sentencia y verificar el resultado
-    if ($stmt->execute()) {
-        $ip = $_SERVER['REMOTE_ADDR'];
-        $stmt = $conexion->prepare("
-        INSERT INTO historial_accesos 
-            (id_usuario, accion, direccion_ip)
-        VALUES (?, 'subida', ?)
-        ");
-        $stmt->execute([ $user_id, $ip ]);
-        echo "Registro de evidencia exitoso.";
-    } else {
-        echo "Error en el registro: " . $stmt->error;
-    }
-
-    $stmt->close();
-} else {
+// 3) Solo vía POST
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     echo "Acceso no autorizado.";
+    exit();
 }
 
+// 4) Recoger datos del formulario
+$id_caso         = trim($_POST['id_caso'] ?? '');
+$tipo_evidencia  = strtolower(trim($_POST['tipo_evidencia'] ?? ''));
+$descripcion     = trim($_POST['Descripcion'] ?? '');
+
+// 5) Validar campos
+if ($id_caso === '' || $tipo_evidencia === '' || !isset($_FILES['archivo'])) {
+    echo "Todos los campos son requeridos y debes adjuntar un archivo.";
+    exit;
+}
+
+// 6) Validar tipo
+$tipos_permitidos = ['pdf','imagen','video','audio','otro'];
+if (!in_array($tipo_evidencia, $tipos_permitidos)) {
+    echo "El tipo de evidencia no es válido.";
+    exit;
+}
+
+// 7) Procesar carga de archivo
+$uploadDir = 'uploads/';
+if (!file_exists($uploadDir)) {
+    mkdir($uploadDir, 0777, true);
+}
+$file = $_FILES['archivo'];
+if ($file['error'] !== UPLOAD_ERR_OK) {
+    echo "Error en la carga del archivo.";
+    exit;
+}
+$originalName   = basename($file['name']);
+$extension      = pathinfo($originalName, PATHINFO_EXTENSION);
+$newFileName    = uniqid('evid_', true) . '.' . $extension;
+$targetFilePath = $uploadDir . $newFileName;
+if (!move_uploaded_file($file['tmp_name'], $targetFilePath)) {
+    echo "Error al guardar el archivo.";
+    exit;
+}
+
+// 8) Hash y tamaño
+$hash_sha3     = hash_file('sha3-256', $targetFilePath);
+$tamano_archivo = filesize($targetFilePath);
+
+// 9) Insert en `evidencias`
+$stmt = $conn->prepare("
+    INSERT INTO evidencias 
+      (id_caso, id_usuario, tipo_evidencia, nombre_archivo, ruta_archivo, hash_sha3, tamano_archivo)
+    VALUES (?, ?, ?, ?, ?, ?, ?)
+");
+$id_usuario = $_SESSION['usuario_id'];
+$stmt->bind_param(
+    "iissssi",
+    $id_caso,
+    $id_usuario,
+    $tipo_evidencia,
+    $originalName,
+    $targetFilePath,
+    $hash_sha3,
+    $tamano_archivo
+);
+
+if ($stmt->execute()) {
+    // 10) Registrar en `historial_accesos`
+    $evidencia_id = $stmt->insert_id;
+    $ip           = $_SERVER['REMOTE_ADDR'];
+    $h = $conn->prepare("
+        INSERT INTO historial_accesos 
+          (id_usuario, id_evidencia, accion, direccion_ip)
+        VALUES (?, ?, 'Subida Evidencia', ?)
+    ");
+    $h->bind_param("iis", $id_usuario, $evidencia_id, $ip);
+    if (!$h->execute()) {
+        error_log("Error al insertar historial de accesos: " . $h->error);
+    }
+
+    echo "Registro de evidencia exitoso.";
+} else {
+    echo "Error en el registro de evidencia: " . $stmt->error;
+}
+
+$stmt->close();
 $conn->close();
 ?>

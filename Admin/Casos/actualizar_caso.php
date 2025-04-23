@@ -16,7 +16,15 @@ $stmt = $conexion->prepare($sql);
 $stmt->bind_param("sssssi", $nombre, $fecha, $usuario, $descripcion, $estado, $id);
 
 if ($stmt->execute()) {
-    echo "Caso actualizado correctamente.";
+    $sql = "INSERT INTO historial_accesos 
+            (id_usuario, accion, direccion_ip)
+        VALUES (?, 'Modificación Caso', ?)";
+    $ip = $_SERVER['REMOTE_ADDR'];
+    $stmt = $conexion->prepare($sql);
+    $stmt->bind_param("is",$usuario, $ip);
+    if ($stmt->execute()) {
+        echo "Caso actualizado correctamente.";
+    }
 } else {
     echo "Error al actualizar.";
 }

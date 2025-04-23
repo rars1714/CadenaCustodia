@@ -16,7 +16,15 @@ $stmt = $conexion->prepare($sql);
 $stmt->bind_param("iisssi", $id_caso, $id_usuario, $tipo_evidencia, $descripcion, $nombre_archivo, $id);
 
 if ($stmt->execute()) {
-    echo "Evidencia actualizada correctamente.";
+    $sql = "INSERT INTO historial_accesos 
+            (id_usuario, accion, direccion_ip)
+        VALUES (?, 'Modificación Evidencia', ?)";
+    $ip = $_SERVER['REMOTE_ADDR'];
+    $stmt = $conexion->prepare($sql);
+    $stmt->bind_param("is",$usuario, $ip);
+    if ($stmt->execute()) {
+        echo "Evidencia actualizada correctamente.";
+    }
 } else {
     echo "Error al actualizar: " . $stmt->error;
 }

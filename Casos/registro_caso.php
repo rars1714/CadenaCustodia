@@ -43,7 +43,7 @@ if ($stmt->execute()) {
     $h = $conn->prepare("
         INSERT INTO historial_accesos 
             (id_usuario, id_evidencia, accion, direccion_ip)
-        VALUES (?, NULL, 'subida', ?)
+        VALUES (?, NULL, 'Subida Caso', ?)
     ");
     $h->bind_param("is", $id_usuario, $ip);
     if (!$h->execute()) {
