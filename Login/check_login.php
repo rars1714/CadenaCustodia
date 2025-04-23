@@ -21,26 +21,42 @@ $resultado = $stmt->get_result();
 if ($resultado->num_rows === 1) {
     $usuario = $resultado->fetch_assoc();
 
-    if ($correo === "admin@admin.com" && $contrasena === "admin") {
+    if (password_verify($contrasena, $usuario['contrasena_hash']) && $usuario['id_rol'] === 4) {
         $_SESSION['usuario_id'] = $usuario['id_usuario'];
-        $_SESSION['correo']     = $usuario['correo'];
+        $_SESSION['correo'] = $usuario['correo'];
         $_SESSION['nombre'] = $usuario['nombre'];
         $_SESSION['rol_nombre'] = $usuario['rol_nombre'];
         $_SESSION['id_rol'] = $usuario['id_rol'];
-        
-        header("Location: /cadenacustodia/Admin/Evidencia/agregar_evidencia_admin.php");
+
+        // registrar en historial
+        $ip = $_SERVER['REMOTE_ADDR'];
+        $stmt = $conexion->prepare("
+        INSERT INTO historial_accesos 
+        (id_usuario, accion, direccion_ip)
+        VALUES (?, 'login', ?)
+        ");
+        $stmt->bind_param("is", $usuario['id_usuario'], $ip);
+        $stmt->execute();
+        header("Location: /cadenacustodia/home.php");
         exit();
     }
 
     if (password_verify($contrasena, $usuario['contrasena_hash'])) {
         $_SESSION['usuario_id'] = $usuario['id_usuario'];
-        $_SESSION['correo']     = $usuario['correo'];
-        $_SESSION['nombre']     = $usuario['nombre'];
-        $_SESSION['id_rol'] = $usuario['id_rol'];
+        $_SESSION['correo'] = $usuario['correo'];
         $_SESSION['nombre'] = $usuario['nombre'];
         $_SESSION['rol_nombre'] = $usuario['rol_nombre'];
         $_SESSION['id_rol'] = $usuario['id_rol'];
-        
+
+        // registrar en historial
+        $ip = $_SERVER['REMOTE_ADDR'];
+        $stmt = $conexion->prepare("
+        INSERT INTO historial_accesos 
+        (id_usuario, accion, direccion_ip)
+        VALUES (?, 'login', ?)
+        ");
+        $stmt->bind_param("is", $usuario['id_usuario'], $ip);
+        $stmt->execute();
         header("Location: /cadenacustodia/home.php");
         exit();
     } else {

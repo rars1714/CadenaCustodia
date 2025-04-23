@@ -76,8 +76,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Asociar los parámetros (se asume que id_caso e id_usuario son enteros)
     $stmt->bind_param("iissssi", $id_caso, $id_usuario, $tipo_evidencia, $originalName, $targetFilePath, $hash_sha3, $tamano_archivo);
 
+
+
     // Ejecutar la sentencia y verificar el resultado
     if ($stmt->execute()) {
+        $ip = $_SERVER['REMOTE_ADDR'];
+        $stmt = $conexion->prepare("
+        INSERT INTO historial_accesos 
+            (id_usuario, accion, direccion_ip)
+        VALUES (?, 'subida', ?)
+        ");
+        $stmt->execute([ $user_id, $ip ]);
         echo "Registro de evidencia exitoso.";
     } else {
         echo "Error en el registro: " . $stmt->error;

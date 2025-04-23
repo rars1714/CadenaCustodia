@@ -31,50 +31,81 @@ $siguiente_id = $fila['ultimo_id'] + 1;
   <link rel="stylesheet" href="../../css/confirmacion/check_usuario.css">
 </head>
 <body>
-  <!-- ========== Navbar ========== -->
-  <nav class="navbar">
-    <div class="container">
-      <div class="navbar-header">
-        <button class="navbar-toggler" data-toggle="open-navbar1">
-          <span></span>
-          <span></span>
-          <span></span>
-        </button>
-        <a href="#">
-          <img src="../../images/techlab.png" alt="Legal Tech" style="width:150px; height:auto;">
-        </a>
-      </div>
-      <div class="navbar-menu" id="open-navbar1">
-        <ul class="navbar-nav">
-          <li class="navbar-item">
-            <a href="#">
-              <?php echo htmlspecialchars($_SESSION['nombre']); ?> (ID: <?php echo htmlspecialchars($_SESSION['usuario_id']); ?>)
-            </a>
-          </li>
-          <li class="navbar-dropdown active">
-            <a href="#" class="dropdown-toggler" data-dropdown="dropdown-evidencia">
-              Evidencia <i class="fa fa-angle-down"></i>
-            </a>
-            <ul class="dropdown" id="dropdown-evidencia">
-              <!-- Muestra el nombre y el ID del usuario logueado -->
-              <li class="separator"></li>
-              <li><a href="agregar_evidencia_admin.php">Agregar</a></li>
-              <li class="separator"></li>
-              <li><a href="modificar_evidencia_admin.php">Consultar</a></li>
-              <li class="separator"></li>
-            </ul>
-          </li>
-          <li class="navbar-dropdown">
-            <a href="#" class="dropdown-toggler" data-dropdown="dropdown-casos">
-              Casos <i class="fa fa-angle-down"></i>
-            </a>
-            <ul class="dropdown" id="dropdown-casos">
-              <li><a href="../../Admin/Casos/agregar_caso_admin.php">Agregar</a></li>
-              <li class="separator"></li>
-              <li><a href="../../Admin/Casos/modificar_caso_admin.php">Consultar</a></li>
-              <li class="separator"></li>
-            </ul>
-          </li>
+
+<!-- ========== Navbar ========== -->
+<nav class="navbar">
+  <div class="container">
+    <div class="navbar-header">
+      <button class="navbar-toggler" data-toggle="open-navbar1">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+      <a href="#">
+        <img src="../../images/techlab.png" alt="Legal Tech" style="width:150px; height:auto;">
+      </a>
+    </div>
+    <div class="navbar-menu" id="open-navbar1">
+      <ul class="navbar-nav">
+        <li class="navbar-item">
+          <a href="#">
+            <?= htmlspecialchars($_SESSION['nombre']) ?> (ID: <?= htmlspecialchars($_SESSION['usuario_id']) ?>)
+          </a>
+        </li>
+
+        <!-- EVIDENCIA -->
+        <li class="navbar-dropdown active">
+          <a href="#" class="dropdown-toggler" data-dropdown="dropdown-evidencia">
+            Evidencia <i class="fa fa-angle-down"></i>
+          </a>
+          <ul class="dropdown" id="dropdown-evidencia">
+            <li class="separator"></li>
+            <li>
+              <a href="<?= $_SESSION['id_rol'] === 4 
+                            ? 'agregar_evidencia_admin.php' 
+                            : 'agregar_evidencia.php' ?>">
+                Agregar
+              </a>
+            </li>
+            <li class="separator"></li>
+            <li>
+              <a href="<?= $_SESSION['id_rol'] === 4 
+                            ? 'modificar_evidencia_admin.php' 
+                            : 'modificar_evidencia.php' ?>">
+                Consultar
+              </a>
+            </li>
+            <li class="separator"></li>
+          </ul>
+        </li>
+
+        <!-- CASOS -->
+        <li class="navbar-dropdown">
+          <a href="#" class="dropdown-toggler" data-dropdown="dropdown-casos">
+            Casos <i class="fa fa-angle-down"></i>
+          </a>
+          <ul class="dropdown" id="dropdown-casos">
+            <li>
+              <a href="<?= $_SESSION['id_rol'] === 4 
+                            ? '../../Admin/Casos/agregar_caso_admin.php' 
+                            : '../../Casos/agregar_caso.php' ?>">
+                Agregar
+              </a>
+            </li>
+            <li class="separator"></li>
+            <li>
+              <a href="<?= $_SESSION['id_rol'] === 4 
+                            ? '../../Admin/Casos/modificar_caso_admin.php' 
+                            : '../../Casos/modificar_caso.php' ?>">
+                Consultar
+              </a>
+            </li>
+            <li class="separator"></li>
+          </ul>
+        </li>
+
+        <?php if ($_SESSION['id_rol'] === 4): ?>
+          <!-- USUARIOS (solo admin) -->
           <li class="navbar-dropdown">
             <a href="#" class="dropdown-toggler" data-dropdown="dropdown-usuarios">
               Usuarios <i class="fa fa-angle-down"></i>
@@ -88,12 +119,17 @@ $siguiente_id = $fila['ultimo_id'] + 1;
               <li class="separator"></li>
             </ul>
           </li>
-          <li><a href="#">Historial de accesos</a></li>
-          <li><a href="../../Login/logout.php">Salir</a></li>
-        </ul>
-      </div>
+          <!-- HISTORIAL DE ACCESOS (solo admin) -->
+          <li><a href="historial_accesos.php">Historial de accesos</a></li>
+        <?php endif; ?>
+
+        <li><a href="../../Login/logout.php">Salir</a></li>
+      </ul>
     </div>
-  </nav>
+  </div>
+</nav>
+
+
 
   <!-- ========== Formulario de Evidencia ========== -->
   <div class="formbold-main-wrapper">

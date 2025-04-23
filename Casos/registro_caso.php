@@ -1,60 +1,59 @@
 <?php
-// registro_caso.php
+session_start();
 
-// Configuración de la conexión a la base de datos
-$db_host = "localhost";
-$db_user = "root";
-$db_pass = "";
-$db_name = "cadena_custodia";
+// 1) Validar sesión
+if (!isset($_SESSION['usuario_id']) || !isset($_SESSION['id_rol'])) {
+    header("Location: ../Login/login.php");
+    exit();
+}
 
-// Conexión a la base de datos
-$conn = new mysqli($db_host, $db_user, $db_pass, $db_name);
+// 2) Conexión
+$conn = new mysqli("localhost", "root", "", "cadena_custodia");
 if ($conn->connect_error) {
     die("Error de conexión: " . $conn->connect_error);
 }
 
-// Verificar que se envíe el formulario mediante POST
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Se ignoran 'id_caso' y 'fecha_inicio' pues la base de datos asigna automáticamente estos valores.
-    $nombre_caso = trim($_POST['nombre_caso'] ?? '');
-    $descripcion = trim($_POST['descripcion'] ?? '');
-    $estado = strtolower(trim($_POST['estado'] ?? ''));
-    $id_usuario = trim($_POST['usuario'] ?? '');
-
-    // Validar que los campos requeridos estén completos
-    if (empty($nombre_caso) || empty($estado) || empty($id_usuario)) {
-        echo "Los campos Nombre del Caso, Estado y Usuario son requeridos.";
-        exit;
-    }
-
-    // Validar que el estado esté entre los permitidos
-    $estados_permitidos = ['abierto', 'en proceso', 'cerrado'];
-    if (!in_array($estado, $estados_permitidos)) {
-        echo "El estado no es válido.";
-        exit;
-    }
-
-    // Preparar la sentencia SQL para insertar el caso en la base de datos
-    $stmt = $conn->prepare("INSERT INTO casos (nombre_caso, descripcion, estado, id_usuario) VALUES (?, ?, ?, ?)");
-    if (!$stmt) {
-        echo "Error en la preparación: " . $conn->error;
-        exit;
-    }
-
-    // Se asume que id_usuario es un número entero
-    $stmt->bind_param("sssi", $nombre_caso, $descripcion, $estado, $id_usuario);
-
-    // Ejecutar la sentencia y verificar el resultado
-    if ($stmt->execute()) {
-        echo "Caso registrado exitosamente.";
-    } else {
-        echo "Error en el registro del caso: " . $stmt->error;
-    }
-
-    $stmt->close();
-} else {
+// 3) Solo POST
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     echo "Acceso no autorizado.";
+    exit();
 }
 
+// Campos del form
+$nombre_caso = trim($_POST['nombre_caso'] ?? '');
+$descripcion  = trim($_POST['descripcion'] ?? '');
+$estado       = trim($_POST['estado'] ?? 'abierto');  // ya viene oculto "abierto"
+
+// VALIDACIÓN
+if ($nombre_caso === '' || $estado === '') {
+    echo "Los campos Nombre del Caso y Estado son requeridos.";
+    exit;
+}
+
+// Insert en casos
+$stmt = $conn->prepare(
+    "INSERT INTO casos (nombre_caso, descripcion, estado, id_usuario) VALUES (?, ?, ?, ?)"
+);
+$id_usuario = $_SESSION['usuario_id'];
+$stmt->bind_param("sssi", $nombre_caso, $descripcion, $estado, $id_usuario);
+
+if ($stmt->execute()) {
+    // INSERT en historial_accesos
+    $ip = $_SERVER['REMOTE_ADDR'];
+    $h = $conn->prepare("
+        INSERT INTO historial_accesos 
+            (id_usuario, id_evidencia, accion, direccion_ip)
+        VALUES (?, NULL, 'subida', ?)
+    ");
+    $h->bind_param("is", $id_usuario, $ip);
+    if (!$h->execute()) {
+        error_log("Error al insertar historial: " . $h->error);
+    }
+    echo "Caso registrado exitosamente.";
+} else {
+    echo "Error en el registro del caso: " . $stmt->error;
+}
+
+$stmt->close();
 $conn->close();
 ?>
