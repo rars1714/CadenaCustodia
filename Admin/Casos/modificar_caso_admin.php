@@ -154,7 +154,7 @@ $resultado = $conexion->query($sql);
     <tr data-id="<?= $fila['id_caso'] ?>">
       <td><?= $fila['id_caso'] ?></td>
       <td><input type="text" value="<?= $fila['nombre_caso'] ?>" disabled></td>
-      <td><input type="date" value="<?= $fila['fecha_creacion'] ?>" disabled></td>
+      <td><input type="text" value="<?= $fila['fecha_creacion'] ?>" disabled></td>
       <td><input type="text" value="<?= $fila['id_usuario'] ?>" disabled></td>
       <td><input type="text" value="<?= $fila['descripcion'] ?>" disabled></td>
       <td>
