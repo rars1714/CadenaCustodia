@@ -14,9 +14,9 @@ if ($conexion->connect_error) {
 }
 
 $id_usuario = $_SESSION['usuario_id'];
-$id_rol     = $_SESSION['id_rol'];
+$id_rol = $_SESSION['id_rol'];
 
-// Verificar si tiene permiso para consultar evidencia
+// Verificar permiso para consultar evidencia
 if (!tiene_permiso($conexion, $id_rol, 'consultar_evidencia')) {
     echo "<script>
         alert('No tiene permiso para consultar evidencia.');
@@ -25,18 +25,18 @@ if (!tiene_permiso($conexion, $id_rol, 'consultar_evidencia')) {
     exit();
 }
 
-$sql = "SELECT id_evidencia, id_caso, id_usuario, tipo_evidencia, descripcion, nombre_archivo 
-        FROM evidencias WHERE id_usuario = ?";
+// Consulta modificada: Evidencias de casos donde el usuario participa
+$sql = "SELECT e.* 
+        FROM evidencias e
+        INNER JOIN casos c ON e.id_caso = c.id_caso 
+        WHERE c.id_usuario = ?";
 $stmt = $conexion->prepare($sql);
 $stmt->bind_param("i", $id_usuario);
 $stmt->execute();
 $resultado = $stmt->get_result();
 ?>
 
-
 <?php
-session_start();
-
 if (!isset($_SESSION['usuario_id']) || !isset($_SESSION['id_rol'])) {
     header("Location: ../Login/login.php");
     exit();
@@ -51,15 +51,6 @@ if ($conexion->connect_error) {
 
 $id_usuario = $_SESSION['usuario_id'];
 $id_rol     = $_SESSION['id_rol'];
-
-// Verificar si tiene permiso para consultar evidencia
-if (!tiene_permiso($conexion, $id_rol, 'consultar_casos')) {
-    echo "<script>
-        alert('No tiene permiso para consultar casos.');
-        window.location.href = '../home.php';
-    </script>";
-    exit();
-}
 
 $sql = "SELECT id_evidencia, id_caso, id_usuario, tipo_evidencia, descripcion, nombre_archivo 
         FROM evidencias WHERE id_usuario = ?";
@@ -83,8 +74,8 @@ $resultado = $stmt->get_result();
   <link rel="stylesheet" href="../css/forms.css">
 </head>
 <body>
-<!-- ========== Navbar ========== -->
-<nav class="navbar">
+  <!-- ========== Navbar ========== -->
+  <nav class="navbar">
   <div class="container">
     <div class="navbar-header">
       <button class="navbar-toggler" data-toggle="open-navbar1">
@@ -93,7 +84,13 @@ $resultado = $stmt->get_result();
         <span></span>
       </button>
       <a href="#">
-        <img src="../../images/techlab.png" alt="Legal Tech" style="width:150px; height:auto;">
+        <img
+          src="<?= $_SESSION['id_rol'] === 4 
+                    ? '../../images/techlab.png' 
+                    : '../images/techlab.png' ?>"
+          alt="Legal Tech"
+          style="width:150px; height:auto;"
+        >
       </a>
     </div>
     <div class="navbar-menu" id="open-navbar1">
@@ -113,8 +110,8 @@ $resultado = $stmt->get_result();
             <li class="separator"></li>
             <li>
               <a href="<?= $_SESSION['id_rol'] === 4 
-                            ? 'Admin/Evidencia/agregar_evidencia_admin.php' 
-                            : 'Evidencia/agregar_evidencia.php' ?>">
+                            ? '../../Admin/Evidencia/agregar_evidencia_admin.php' 
+                            : '../Evidencia/agregar_evidencia.php' ?>">
                 Agregar
               </a>
             </li>
@@ -122,7 +119,7 @@ $resultado = $stmt->get_result();
             <li>
               <a href="<?= $_SESSION['id_rol'] === 4 
                             ? '../../Admin/Evidencia/modificar_evidencia_admin.php' 
-                            : '../../Evidencia/modificar_evidencia.php' ?>">
+                            : '../Evidencia/modificar_evidencia.php' ?>">
                 Consultar
               </a>
             </li>
@@ -139,7 +136,7 @@ $resultado = $stmt->get_result();
             <li>
               <a href="<?= $_SESSION['id_rol'] === 4 
                             ? '../../Admin/Casos/agregar_caso_admin.php' 
-                            : '../../Casos/agregar_caso.php' ?>">
+                            : '../Casos/agregar_caso.php' ?>">
                 Agregar
               </a>
             </li>
@@ -147,7 +144,7 @@ $resultado = $stmt->get_result();
             <li>
               <a href="<?= $_SESSION['id_rol'] === 4 
                             ? '../../Admin/Casos/modificar_caso_admin.php' 
-                            : '../../Casos/modificar_caso.php' ?>">
+                            : '../Casos/modificar_caso.php' ?>">
                 Consultar
               </a>
             </li>
@@ -171,10 +168,16 @@ $resultado = $stmt->get_result();
             </ul>
           </li>
           <!-- HISTORIAL DE ACCESOS (solo admin) -->
-          <li><a href="historial_accesos.php">Historial de accesos</a></li>
+          <li><a href="../../Admin/Usuarios/historial_accesos.php">Historial de accesos</a></li>
         <?php endif; ?>
 
-        <li><a href="../Login/logout.php">Salir</a></li>
+        <li>
+          <a href="<?= $_SESSION['id_rol'] === 4 
+                        ? '../../Login/logout.php' 
+                        : '../Login/logout.php' ?>">
+            Salir
+          </a>
+        </li>
       </ul>
     </div>
   </div>

@@ -110,7 +110,7 @@ if ($conexion->connect_error) {
             <ul class="dropdown" id="dropdown-usuarios">
               <li><a href="Admin/Usuarios/agregar_usuario_admin.php">Agregar</a></li>
               <li class="separator"></li>
-              <li><a href="Usuarios/permisos_admin.php">Permisos</a></li>
+              <li><a href="Admin/Usuarios/permisos_admin.php">Permisos</a></li>
               <li class="separator"></li>
               <li><a href="Admin/Usuarios/modificar_usuario_admin.php">Consultar</a></li>
               <li class="separator"></li>

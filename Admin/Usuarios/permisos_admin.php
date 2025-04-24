@@ -9,8 +9,8 @@ if ($conexion->connect_error) {
     die("Error de conexión: " . $conexion->connect_error);
 }
 
-// Obtener roles y permisos
-$roles = $conexion->query("SELECT id_rol, nombre FROM roles");
+// Obtener roles y permisos, excluyendo al administrador (id_rol = 4)
+$roles = $conexion->query("SELECT id_rol, nombre FROM roles WHERE id_rol != 4");
 $permisos = [];
 $res = $conexion->query("SELECT id_rol, accion, valor FROM permisos_roles");
 while ($row = $res->fetch_assoc()) {
@@ -30,7 +30,6 @@ while ($row = $res->fetch_assoc()) {
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap" rel="stylesheet" />
 </head>
 <body>
-<!-- ========== Navbar ========== -->
 <nav class="navbar">
   <div class="container">
     <div class="navbar-header">
@@ -41,8 +40,8 @@ while ($row = $res->fetch_assoc()) {
       </button>
       <a href="#">
         <img
-          src="<?= $_SESSION['id_rol'] === 4 
-                    ? '../../images/techlab.png' 
+          src="<?= $_SESSION['id_rol'] === 4
+                    ? '../../images/techlab.png'
                     : '../images/techlab.png' ?>"
           alt="Legal Tech"
           style="width:150px; height:auto;"
@@ -57,7 +56,6 @@ while ($row = $res->fetch_assoc()) {
           </a>
         </li>
 
-        <!-- EVIDENCIA -->
         <li class="navbar-dropdown active">
           <a href="#" class="dropdown-toggler" data-dropdown="dropdown-evidencia">
             Evidencia <i class="fa fa-angle-down"></i>
@@ -65,16 +63,16 @@ while ($row = $res->fetch_assoc()) {
           <ul class="dropdown" id="dropdown-evidencia">
             <li class="separator"></li>
             <li>
-              <a href="<?= $_SESSION['id_rol'] === 4 
-                            ? '../../Admin/Evidencia/agregar_evidencia_admin.php' 
+              <a href="<?= $_SESSION['id_rol'] === 4
+                            ? '../../Admin/Evidencia/agregar_evidencia_admin.php'
                             : '../Evidencia/agregar_evidencia.php' ?>">
                 Agregar
               </a>
             </li>
             <li class="separator"></li>
             <li>
-              <a href="<?= $_SESSION['id_rol'] === 4 
-                            ? '../../Admin/Evidencia/modificar_evidencia_admin.php' 
+              <a href="<?= $_SESSION['id_rol'] === 4
+                            ? '../../Admin/Evidencia/modificar_evidencia_admin.php'
                             : '../Evidencia/modificar_evidencia.php' ?>">
                 Consultar
               </a>
@@ -83,23 +81,22 @@ while ($row = $res->fetch_assoc()) {
           </ul>
         </li>
 
-        <!-- CASOS -->
         <li class="navbar-dropdown">
           <a href="#" class="dropdown-toggler" data-dropdown="dropdown-casos">
             Casos <i class="fa fa-angle-down"></i>
           </a>
           <ul class="dropdown" id="dropdown-casos">
             <li>
-              <a href="<?= $_SESSION['id_rol'] === 4 
-                            ? '../../Admin/Casos/agregar_caso_admin.php' 
+              <a href="<?= $_SESSION['id_rol'] === 4
+                            ? '../../Admin/Casos/agregar_caso_admin.php'
                             : '../Casos/agregar_caso.php' ?>">
                 Agregar
               </a>
             </li>
             <li class="separator"></li>
             <li>
-              <a href="<?= $_SESSION['id_rol'] === 4 
-                            ? '../../Admin/Casos/modificar_caso_admin.php' 
+              <a href="<?= $_SESSION['id_rol'] === 4
+                            ? '../../Admin/Casos/modificar_caso_admin.php'
                             : '../Casos/modificar_caso.php' ?>">
                 Consultar
               </a>
@@ -109,7 +106,6 @@ while ($row = $res->fetch_assoc()) {
         </li>
 
         <?php if ($_SESSION['id_rol'] === 4): ?>
-          <!-- USUARIOS (solo admin) -->
           <li class="navbar-dropdown">
             <a href="#" class="dropdown-toggler" data-dropdown="dropdown-usuarios">
               Usuarios <i class="fa fa-angle-down"></i>
@@ -123,13 +119,12 @@ while ($row = $res->fetch_assoc()) {
               <li class="separator"></li>
             </ul>
           </li>
-          <!-- HISTORIAL DE ACCESOS (solo admin) -->
           <li><a href="../../Admin/Usuarios/historial_accesos.php">Historial de accesos</a></li>
         <?php endif; ?>
 
         <li>
-          <a href="<?= $_SESSION['id_rol'] === 4 
-                        ? '../../Login/logout.php' 
+          <a href="<?= $_SESSION['id_rol'] === 4
+                        ? '../../Login/logout.php'
                         : '../Login/logout.php' ?>">
             Salir
           </a>
@@ -141,7 +136,6 @@ while ($row = $res->fetch_assoc()) {
 
 
 
-  <!-- ========== Tabla de Permisos ========== -->
   <table>
     <thead>
       <tr>
@@ -193,7 +187,6 @@ while ($row = $res->fetch_assoc()) {
     </tbody>
   </table>
 
-  <!-- Scripts -->
   <script src="../../js/navbar.js"></script>
   <script>
     document.querySelectorAll(".edit-btn").forEach(button => {

@@ -5,11 +5,9 @@ function tiene_permiso($conexion, $id_rol, $accion) {
     $stmt->bind_param("is", $id_rol, $accion);
     $stmt->execute();
     $resultado = $stmt->get_result();
-
-    if ($resultado && $fila = $resultado->fetch_assoc()) {
-        return $fila['valor'] == 1;
-    }
-    return false;
+    $fila = $resultado->fetch_assoc();
+    $res = $fila['valor']==1 ? true : false;
+    return $res;
 }
 
 ?>
