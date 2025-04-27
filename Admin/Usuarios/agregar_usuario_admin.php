@@ -10,6 +10,13 @@ $conexion = new mysqli("localhost", "root", "", "cadena_custodia");
 if ($conexion->connect_error) {
     die("Error de conexión: " . $conexion->connect_error);
 }
+
+// 1) Saca la URI o el nombre del script actual
+$current = $_SERVER['REQUEST_URI']; 
+// 2) Marca cada sección como activa si la URI la contiene
+$isEvidencia = strpos($current, '/Evidencia/') !== false;
+$isCasos    = strpos($current, '/Casos/') !== false;
+$isUsuarios = strpos($current, '/Usuarios/') !== false;
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -52,7 +59,7 @@ if ($conexion->connect_error) {
         </li>
 
         <!-- EVIDENCIA -->
-        <li class="navbar-dropdown active">
+        <li class="navbar-dropdown <?= $isEvidencia ? 'active' : '' ?>">
           <a href="#" class="dropdown-toggler" data-dropdown="dropdown-evidencia">
             Evidencia <i class="fa fa-angle-down"></i>
           </a>
@@ -78,7 +85,7 @@ if ($conexion->connect_error) {
         </li>
 
         <!-- CASOS -->
-        <li class="navbar-dropdown">
+        <li class="navbar-dropdown <?= $isCasos ? 'active' : '' ?>">
           <a href="#" class="dropdown-toggler" data-dropdown="dropdown-casos">
             Casos <i class="fa fa-angle-down"></i>
           </a>
@@ -104,7 +111,7 @@ if ($conexion->connect_error) {
 
         <?php if ($_SESSION['id_rol'] === 4): ?>
           <!-- USUARIOS (solo admin) -->
-          <li class="navbar-dropdown">
+          <li class="navbar-dropdown <?= $isUsuarios ? 'active' : '' ?>">
             <a href="#" class="dropdown-toggler" data-dropdown="dropdown-usuarios">
               Usuarios <i class="fa fa-angle-down"></i>
             </a>

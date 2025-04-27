@@ -31,7 +31,7 @@ if ($id_caso === '' || $tipo_evidencia === '' || !isset($_FILES['archivo'])) {
 }
 
 // 6) Validar tipo
-$tipos_permitidos = ['pdf','imagen','video','audio','otro'];
+$tipos_permitidos = ['documento','imagen','video','audio','otro'];
 if (!in_array($tipo_evidencia, $tipos_permitidos)) {
     echo "El tipo de evidencia no es válido.";
     exit;
@@ -59,6 +59,22 @@ if (!move_uploaded_file($file['tmp_name'], $targetFilePath)) {
 // 8) Hash y tamaño
 $hash_sha3     = hash_file('sha3-256', $targetFilePath);
 $tamano_archivo = filesize($targetFilePath);
+
+// 9) Validar duplicado por hash
+$check = $conn->prepare(
+    "SELECT id_evidencia FROM evidencias WHERE hash_sha3 = ?"
+);
+$check->bind_param("s", $hash_sha3);
+$check->execute();
+$check->store_result();
+if ($check->num_rows > 0) {
+    echo "Error: Este archivo ya ha sido subido anteriormente.";
+    // Puedes registrar el intento de duplicado en un log si lo deseas
+    $check->close();
+    unlink($targetFilePath);  // Eliminar archivo duplicado del servidor
+    exit;
+}
+$check->close();
 
 // 9) Insert en `evidencias`
 $stmt = $conn->prepare("

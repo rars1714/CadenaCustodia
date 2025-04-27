@@ -28,6 +28,13 @@ if (!tiene_permiso($conexion, $id_rol, 'ingresar_evidencia')) {
   exit();
 }
 
+// 1) Saca la URI o el nombre del script actual
+$current = $_SERVER['REQUEST_URI']; 
+// 2) Marca cada sección como activa si la URI la contiene
+$isEvidencia = strpos($current, '/Evidencia/') !== false;
+$isCasos    = strpos($current, '/Casos/') !== false;
+$isUsuarios = strpos($current, '/Usuarios/') !== false;
+
 
 ?>
 
@@ -73,7 +80,7 @@ if (!tiene_permiso($conexion, $id_rol, 'ingresar_evidencia')) {
         </li>
 
         <!-- EVIDENCIA -->
-        <li class="navbar-dropdown active">
+        <li class="navbar-dropdown <?= $isEvidencia ? 'active' : '' ?>">
           <a href="#" class="dropdown-toggler" data-dropdown="dropdown-evidencia">
             Evidencia <i class="fa fa-angle-down"></i>
           </a>
@@ -99,7 +106,7 @@ if (!tiene_permiso($conexion, $id_rol, 'ingresar_evidencia')) {
         </li>
 
         <!-- CASOS -->
-        <li class="navbar-dropdown">
+        <li class="navbar-dropdown <?= $isCasos ? 'active' : '' ?>">
           <a href="#" class="dropdown-toggler" data-dropdown="dropdown-casos">
             Casos <i class="fa fa-angle-down"></i>
           </a>
@@ -125,7 +132,7 @@ if (!tiene_permiso($conexion, $id_rol, 'ingresar_evidencia')) {
 
         <?php if ($_SESSION['id_rol'] === 4): ?>
           <!-- USUARIOS (solo admin) -->
-          <li class="navbar-dropdown">
+          <li class="navbar-dropdown <?= $isUsuarios ? 'active' : '' ?>">
             <a href="#" class="dropdown-toggler" data-dropdown="dropdown-usuarios">
               Usuarios <i class="fa fa-angle-down"></i>
             </a>
@@ -176,7 +183,7 @@ if (!tiene_permiso($conexion, $id_rol, 'ingresar_evidencia')) {
         <div class="formbold-input-flex">
           <div>
             <select name="tipo_evidencia" id="tipo_evidencia" class="formbold-form-input">
-              <option value="PDF">PDF</option>
+              <option value="documento">PDF</option>
               <option value="Imagen">Imagen</option>
               <option value="Video">Video</option>
               <option value="Audio">Audio</option>

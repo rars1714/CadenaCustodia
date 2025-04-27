@@ -16,7 +16,15 @@ $res = $conexion->query("SELECT id_rol, accion, valor FROM permisos_roles");
 while ($row = $res->fetch_assoc()) {
     $permisos[$row['id_rol']][$row['accion']] = $row['valor'];
 }
+
+// 1) Saca la URI o el nombre del script actual
+$current = $_SERVER['REQUEST_URI']; 
+// 2) Marca cada sección como activa si la URI la contiene
+$isEvidencia = strpos($current, '/Evidencia/') !== false;
+$isCasos    = strpos($current, '/Casos/') !== false;
+$isUsuarios = strpos($current, '/Usuarios/') !== false;
 ?>
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -56,23 +64,23 @@ while ($row = $res->fetch_assoc()) {
           </a>
         </li>
 
-        <li class="navbar-dropdown active">
+        <li class="navbar-dropdown <?= $isEvidencia ? 'active' : '' ?>">
           <a href="#" class="dropdown-toggler" data-dropdown="dropdown-evidencia">
             Evidencia <i class="fa fa-angle-down"></i>
           </a>
           <ul class="dropdown" id="dropdown-evidencia">
             <li class="separator"></li>
             <li>
-              <a href="<?= $_SESSION['id_rol'] === 4
-                            ? '../../Admin/Evidencia/agregar_evidencia_admin.php'
+              <a href="<?= $_SESSION['id_rol'] === 4 
+                            ? '../../Admin/Evidencia/agregar_evidencia_admin.php' 
                             : '../Evidencia/agregar_evidencia.php' ?>">
                 Agregar
               </a>
             </li>
             <li class="separator"></li>
             <li>
-              <a href="<?= $_SESSION['id_rol'] === 4
-                            ? '../../Admin/Evidencia/modificar_evidencia_admin.php'
+              <a href="<?= $_SESSION['id_rol'] === 4 
+                            ? '../../Admin/Evidencia/modificar_evidencia_admin.php' 
                             : '../Evidencia/modificar_evidencia.php' ?>">
                 Consultar
               </a>
@@ -81,22 +89,23 @@ while ($row = $res->fetch_assoc()) {
           </ul>
         </li>
 
-        <li class="navbar-dropdown">
+        <!-- CASOS -->
+        <li class="navbar-dropdown <?= $isCasos ? 'active' : '' ?>">
           <a href="#" class="dropdown-toggler" data-dropdown="dropdown-casos">
             Casos <i class="fa fa-angle-down"></i>
           </a>
           <ul class="dropdown" id="dropdown-casos">
             <li>
-              <a href="<?= $_SESSION['id_rol'] === 4
-                            ? '../../Admin/Casos/agregar_caso_admin.php'
+              <a href="<?= $_SESSION['id_rol'] === 4 
+                            ? '../../Admin/Casos/agregar_caso_admin.php' 
                             : '../Casos/agregar_caso.php' ?>">
                 Agregar
               </a>
             </li>
             <li class="separator"></li>
             <li>
-              <a href="<?= $_SESSION['id_rol'] === 4
-                            ? '../../Admin/Casos/modificar_caso_admin.php'
+              <a href="<?= $_SESSION['id_rol'] === 4 
+                            ? '../../Admin/Casos/modificar_caso_admin.php' 
                             : '../Casos/modificar_caso.php' ?>">
                 Consultar
               </a>
@@ -106,7 +115,8 @@ while ($row = $res->fetch_assoc()) {
         </li>
 
         <?php if ($_SESSION['id_rol'] === 4): ?>
-          <li class="navbar-dropdown">
+          <!-- USUARIOS (solo admin) -->
+          <li class="navbar-dropdown <?= $isUsuarios ? 'active' : '' ?>">
             <a href="#" class="dropdown-toggler" data-dropdown="dropdown-usuarios">
               Usuarios <i class="fa fa-angle-down"></i>
             </a>
@@ -119,6 +129,7 @@ while ($row = $res->fetch_assoc()) {
               <li class="separator"></li>
             </ul>
           </li>
+          <!-- HISTORIAL DE ACCESOS (solo admin) -->
           <li><a href="../../Admin/Usuarios/historial_accesos.php">Historial de accesos</a></li>
         <?php endif; ?>
 

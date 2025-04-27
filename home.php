@@ -15,6 +15,11 @@ if ($conexion->connect_error) {
     die("Error de conexión: " . $conexion->connect_error);
 }
 
+// Detectar sección activa para el navbar
+$current = $_SERVER['REQUEST_URI'];
+$isEvidencia = strpos($current, '/Evidencia/') !== false;
+$isCasos    = strpos($current, '/Casos/') !== false;
+$isUsuarios = strpos($current, '/Usuarios/') !== false;
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -51,7 +56,7 @@ if ($conexion->connect_error) {
         </li>
 
         <!-- EVIDENCIA -->
-        <li class="navbar-dropdown active">
+        <li class="navbar-dropdown <?= $isEvidencia ? 'active' : '' ?>">
           <a href="#" class="dropdown-toggler" data-dropdown="dropdown-evidencia">
             Evidencia <i class="fa fa-angle-down"></i>
           </a>
@@ -77,7 +82,7 @@ if ($conexion->connect_error) {
         </li>
 
         <!-- CASOS -->
-        <li class="navbar-dropdown">
+        <li class="navbar-dropdown <?= $isCasos ? 'active' : '' ?>">
           <a href="#" class="dropdown-toggler" data-dropdown="dropdown-casos">
             Casos <i class="fa fa-angle-down"></i>
           </a>
@@ -103,21 +108,21 @@ if ($conexion->connect_error) {
 
         <?php if ($_SESSION['id_rol'] === 4): ?>
           <!-- USUARIOS (solo admin) -->
-          <li class="navbar-dropdown">
+          <li class="navbar-dropdown <?= $isUsuarios ? 'active' : '' ?>">
             <a href="#" class="dropdown-toggler" data-dropdown="dropdown-usuarios">
               Usuarios <i class="fa fa-angle-down"></i>
             </a>
             <ul class="dropdown" id="dropdown-usuarios">
-              <li><a href="Admin/Usuarios/agregar_usuario_admin.php">Agregar</a></li>
+              <li><a href="../../Admin/Usuarios/agregar_usuario_admin.php">Agregar</a></li>
               <li class="separator"></li>
-              <li><a href="Admin/Usuarios/permisos_admin.php">Permisos</a></li>
+              <li><a href="../Usuarios/permisos_admin.php">Permisos</a></li>
               <li class="separator"></li>
-              <li><a href="Admin/Usuarios/modificar_usuario_admin.php">Consultar</a></li>
+              <li><a href="../../Admin/Usuarios/modificar_usuario_admin.php">Consultar</a></li>
               <li class="separator"></li>
             </ul>
           </li>
           <!-- HISTORIAL DE ACCESOS (solo admin) -->
-          <li><a href="Admin/Usuarios/historial_accesos.php">Historial de accesos</a></li>
+          <li><a href="../../Admin/Usuarios/historial_accesos.php">Historial de accesos</a></li>
         <?php endif; ?>
 
         <li><a href="Login/logout.php">Salir</a></li>
