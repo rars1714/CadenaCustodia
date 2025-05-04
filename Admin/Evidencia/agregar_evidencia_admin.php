@@ -1,5 +1,4 @@
 <?php
-// cadenacustodia/Evidencia/agregar_evidencia.php
 session_start();
 // Verificar si NO hay sesión activa
 if (!isset($_SESSION['usuario_id'])) {
@@ -16,15 +15,7 @@ if ($conexion->connect_error) {
 $resultado = $conexion->query("SELECT MAX(id_evidencia) AS ultimo_id FROM evidencias");
 $fila = $resultado->fetch_assoc();
 $siguiente_id = $fila['ultimo_id'] + 1;
-
-// 1) Saca la URI o el nombre del script actual
-$current = $_SERVER['REQUEST_URI']; 
-// 2) Marca cada sección como activa si la URI la contiene
-$isEvidencia = strpos($current, '/Evidencia/') !== false;
-$isCasos    = strpos($current, '/Casos/') !== false;
-$isUsuarios = strpos($current, '/Usuarios/') !== false;
 ?>
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -68,7 +59,7 @@ $isUsuarios = strpos($current, '/Usuarios/') !== false;
         </li>
 
         <!-- EVIDENCIA -->
-        <li class="navbar-dropdown <?= $isEvidencia ? 'active' : '' ?>">
+        <li class="navbar-dropdown active">
           <a href="#" class="dropdown-toggler" data-dropdown="dropdown-evidencia">
             Evidencia <i class="fa fa-angle-down"></i>
           </a>
@@ -94,7 +85,7 @@ $isUsuarios = strpos($current, '/Usuarios/') !== false;
         </li>
 
         <!-- CASOS -->
-        <li class="navbar-dropdown <?= $isCasos ? 'active' : '' ?>">
+        <li class="navbar-dropdown">
           <a href="#" class="dropdown-toggler" data-dropdown="dropdown-casos">
             Casos <i class="fa fa-angle-down"></i>
           </a>
@@ -120,7 +111,7 @@ $isUsuarios = strpos($current, '/Usuarios/') !== false;
 
         <?php if ($_SESSION['id_rol'] === 4): ?>
           <!-- USUARIOS (solo admin) -->
-          <li class="navbar-dropdown <?= $isUsuarios ? 'active' : '' ?>">
+          <li class="navbar-dropdown">
             <a href="#" class="dropdown-toggler" data-dropdown="dropdown-usuarios">
               Usuarios <i class="fa fa-angle-down"></i>
             </a>
@@ -207,7 +198,7 @@ $isUsuarios = strpos($current, '/Usuarios/') !== false;
           </label>
         </div>
         <button type="button" id="confirm" class="formbold-btn" style="display: block; margin: 30px auto;">
-          Confirmar Evidencia
+          Registrar Evidencia
         </button>
 
       </form>

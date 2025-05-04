@@ -8,10 +8,15 @@ if (!isset($_SESSION['usuario_id']) || !isset($_SESSION['id_rol'])) {
 
 require_once '../validar_permisos.php';
 
+
 $conexion = new mysqli("localhost", "root", "", "cadena_custodia");
 if ($conexion->connect_error) {
     die("Error de conexión: " . $conexion->connect_error);
 }
+$perm_agregar_evidencia   = tiene_permiso($conexion, $_SESSION['id_rol'], 'ingresar_evidencia');
+$perm_consultar_evidencia = tiene_permiso($conexion, $_SESSION['id_rol'], 'consultar_evidencia');
+$perm_agregar_casos       = tiene_permiso($conexion, $_SESSION['id_rol'], 'crear_casos');
+$perm_consultar_casos     = tiene_permiso($conexion, $_SESSION['id_rol'], 'consultar_casos');
 
 $id_usuario = $_SESSION['usuario_id'];
 $id_rol     = $_SESSION['id_rol'];
@@ -27,12 +32,6 @@ if (!tiene_permiso($conexion, $id_rol, 'crear_casos')) {
 $resultado = $conexion->query("SELECT MAX(id_caso) AS ultimo_id FROM casos");
 $fila = $resultado->fetch_assoc();
 $siguiente_id = $fila['ultimo_id'] + 1;
-// 1) Saca la URI o el nombre del script actual
-$current = $_SERVER['REQUEST_URI']; 
-// 2) Marca cada sección como activa si la URI la contiene
-$isEvidencia = strpos($current, '/Evidencia/') !== false;
-$isCasos    = strpos($current, '/Casos/') !== false;
-$isUsuarios = strpos($current, '/Usuarios/') !== false;
 ?>
 
 <!DOCTYPE html>
@@ -46,6 +45,7 @@ $isUsuarios = strpos($current, '/Usuarios/') !== false;
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../css/navbar.css">
   <link rel="stylesheet" href="../css/forms.css">
+  <link rel="stylesheet" href="../css/confirmacion/check_usuario.css">
 </head>
 
 <body>
@@ -54,15 +54,11 @@ $isUsuarios = strpos($current, '/Usuarios/') !== false;
   <div class="container">
     <div class="navbar-header">
       <button class="navbar-toggler" data-toggle="open-navbar1">
-        <span></span>
-        <span></span>
-        <span></span>
+        <span></span><span></span><span></span>
       </button>
       <a href="#">
         <img
-          src="<?= $_SESSION['id_rol'] === 4 
-                    ? '../../images/techlab.png' 
-                    : '../images/techlab.png' ?>"
+          src="<?= $id_rol === 4 ? '../../images/techlab.png' : '../images/techlab.png' ?>"
           alt="Legal Tech"
           style="width:150px; height:auto;"
         >
@@ -77,95 +73,95 @@ $isUsuarios = strpos($current, '/Usuarios/') !== false;
         </li>
 
         <!-- EVIDENCIA -->
-        <li class="navbar-dropdown <?= $isEvidencia ? 'active' : '' ?>">
+        <?php if ($perm_agregar_evidencia || $perm_consultar_evidencia): ?>
+        <li class="navbar-dropdown">
           <a href="#" class="dropdown-toggler" data-dropdown="dropdown-evidencia">
             Evidencia <i class="fa fa-angle-down"></i>
           </a>
           <ul class="dropdown" id="dropdown-evidencia">
-            <li class="separator"></li>
-            <li>
-              <a href="<?= $_SESSION['id_rol'] === 4 
-                            ? '../../Admin/Evidencia/agregar_evidencia_admin.php' 
-                            : '../Evidencia/agregar_evidencia.php' ?>">
-                Agregar
-              </a>
-            </li>
-            <li class="separator"></li>
-            <li>
-              <a href="<?= $_SESSION['id_rol'] === 4 
-                            ? '../../Admin/Evidencia/modificar_evidencia_admin.php' 
-                            : '../Evidencia/modificar_evidencia.php' ?>">
-                Consultar
-              </a>
-            </li>
-            <li class="separator"></li>
+            <?php if ($perm_agregar_evidencia): ?>
+              <li>
+                <a href="<?= $id_rol === 4 ? '../../Admin/Evidencia/agregar_evidencia_admin.php' : '../Evidencia/agregar_evidencia.php' ?>">Agregar</a>
+              </li>
+              <li class="separator"></li>
+            <?php endif; ?>
+            <?php if ($perm_consultar_evidencia): ?>
+              <li>
+                <a href="<?= $id_rol === 4 ? '../../Admin/Evidencia/modificar_evidencia_admin.php' : '../Evidencia/modificar_evidencia.php' ?>">Consultar</a>
+              </li>
+              <li class="separator"></li>
+            <?php endif; ?>
           </ul>
         </li>
+        <?php endif; ?>
 
         <!-- CASOS -->
-        <li class="navbar-dropdown <?= $isCasos ? 'active' : '' ?>">
+        <?php if ($perm_agregar_casos || $perm_consultar_casos): ?>
+        <li class="navbar-dropdown active">
           <a href="#" class="dropdown-toggler" data-dropdown="dropdown-casos">
             Casos <i class="fa fa-angle-down"></i>
           </a>
           <ul class="dropdown" id="dropdown-casos">
-            <li>
-              <a href="<?= $_SESSION['id_rol'] === 4 
-                            ? '../../Admin/Casos/agregar_caso_admin.php' 
-                            : '../Casos/agregar_caso.php' ?>">
-                Agregar
-              </a>
-            </li>
+            <?php if ($perm_agregar_casos): ?>
+              <li>
+                <a href="<?= $id_rol === 4 ? '../../Admin/Casos/agregar_caso_admin.php' : '../Casos/agregar_caso.php' ?>">Agregar</a>
+              </li>
+              <li class="separator"></li>
+            <?php endif; ?>
+            <?php if ($perm_consultar_casos): ?>
+              <li>
+                <a href="<?= $id_rol === 4 ? '../../Admin/Casos/modificar_caso_admin.php' : '../Casos/modificar_caso.php' ?>">Consultar</a>
+              </li>
+              <li class="separator"></li>
+            <?php endif; ?>
+          </ul>
+        </li>
+        <?php endif; ?>
+
+        <!-- ÁREA DE TRABAJO solo para rol 2 -->
+        <?php if ($id_rol == 2): ?>
+        <li class="navbar-dropdown">
+          <a href="#" class="dropdown-toggler" data-dropdown="dropdown-trabajo">Área de Trabajo</a>
+          <ul class="dropdown" id="dropdown-trabajo">
+            <li><a href="../Analisis/formulario_analisis.php">Registro</a></li>
             <li class="separator"></li>
-            <li>
-              <a href="<?= $_SESSION['id_rol'] === 4 
-                            ? '../../Admin/Casos/modificar_caso_admin.php' 
-                            : '../Casos/modificar_caso.php' ?>">
-                Consultar
-              </a>
-            </li>
+            <li><a href="../Analisis/modificar_analisis.php">Consultar</a></li>
+          </ul>
+        </li>
+        <?php endif; ?>
+
+        <!-- ADMIN: Usuarios y Accesos -->
+        <?php if ($id_rol === 4): ?>
+        <li class="navbar-dropdown">
+          <a href="#" class="dropdown-toggler" data-dropdown="dropdown-usuarios">
+            Usuarios <i class="fa fa-angle-down"></i>
+          </a>
+          <ul class="dropdown" id="dropdown-usuarios">
+            <li><a href="../../Admin/Usuarios/agregar_usuario_admin.php">Agregar</a></li>
+            <li class="separator"></li>
+            <li><a href="../Usuarios/permisos_admin.php">Permisos</a></li>
+            <li class="separator"></li>
+            <li><a href="../../Admin/Usuarios/modificar_usuario_admin.php">Consultar</a></li>
             <li class="separator"></li>
           </ul>
         </li>
-
-        <?php if ($_SESSION['id_rol'] === 4): ?>
-          <!-- USUARIOS (solo admin) -->
-          <li class="navbar-dropdown <?= $isUsuarios ? 'active' : '' ?>">
-            <a href="#" class="dropdown-toggler" data-dropdown="dropdown-usuarios">
-              Usuarios <i class="fa fa-angle-down"></i>
-            </a>
-            <ul class="dropdown" id="dropdown-usuarios">
-              <li><a href="../../Admin/Usuarios/agregar_usuario_admin.php">Agregar</a></li>
-              <li class="separator"></li>
-              <li><a href="../Usuarios/permisos_admin.php">Permisos</a></li>
-              <li class="separator"></li>
-              <li><a href="../../Admin/Usuarios/modificar_usuario_admin.php">Consultar</a></li>
-              <li class="separator"></li>
-            </ul>
-          </li>
-          <!-- HISTORIAL DE ACCESOS (solo admin) -->
-          <li><a href="../../Admin/Usuarios/historial_accesos.php">Historial de accesos</a></li>
+        <li><a href="../../Admin/Usuarios/historial_accesos.php">Historial de accesos</a></li>
         <?php endif; ?>
 
+        <!-- SALIR -->
         <li>
-          <a href="<?= $_SESSION['id_rol'] === 4 
-                        ? '../../Login/logout.php' 
-                        : '../Login/logout.php' ?>">
-            Salir
-          </a>
+          <a href="<?= $id_rol === 4 ? '../../Login/logout.php' : '../Login/logout.php' ?>">Salir</a>
         </li>
       </ul>
     </div>
   </div>
 </nav>
 
-
-
-
   <!-- ========== Formulario de Casos ========== -->
   <div class="formbold-main-wrapper">
     <div class="formbold-form-wrapper">
       <!-- Se actualiza el action para apuntar a registro_caso.php -->
-      <form action="registro_caso.php" method="POST">
+      <form id="registrationForm" action="registro_caso.php" method="POST">
         <div class="formbold-input-flex">
           <div>
           <input type="text" name="id_caso" id="id_caso" class="formbold-form-input" value="<?php echo $siguiente_id; ?>" readonly>
@@ -195,15 +191,32 @@ $isUsuarios = strpos($current, '/Usuarios/') !== false;
           <textarea rows="6" name="descripcion" id="descripcion" placeholder="Descripción del caso." class="formbold-form-input"></textarea>
           <label for="descripcion" class="formbold-form-label">Descripción</label>
         </div>
-
-        <button class="formbold-btn" type="submit">
+        <button type="button" id="confirmBtn" class="formbold-btn" style="display: block; margin: 30px auto;">
           Registrar Caso
         </button>
       </form>
+      <div id="confirmation" style="display: none;">
+        <h3>Confirma tus datos</h3>
+        <ul>
+          <li id="confirmIdCaso"></li>
+          <li id="confirmFechaInicio"></li>
+          <li id="confirmNombreCaso"></li>
+          <li id="confirmEstado"></li>
+          <li id="confirmDescripcion"></li>
+        </ul>
+        <div style="display: flex; justify-content: center; gap: 20px; flex-wrap: wrap;">
+          <button id="editBtn" class="formbold-btn">Editar</button>
+          <button id="submitBtn" class="formbold-btn">Confirmar Registro</button>
+        </div>
+      </div>
+
+
     </div>
   </div>
 
   <script src="../js/navbar.js"></script>
   <script src="../js/forms.js"></script>
+  <script src="../js/registro/registro_caso.js"></script>
+
 </body>
 </html>

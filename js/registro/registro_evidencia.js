@@ -1,36 +1,31 @@
-document.getElementById("confirm").addEventListener("click", function(){
-  // Obtener valores
+document.getElementById("confirm").addEventListener("click", function () {
   var idEvidencia = document.getElementById("id_evidencia").value;
   var idCaso = document.getElementById("id_caso").value;
   var tipoEvidencia = document.getElementById("tipo_evidencia").value;
   var descripcion = document.getElementById("Descripcion").value;
-  var nombreArchivo = document.getElementById("upload").files.length > 0 ? document.getElementById("upload").files[0].name : "";
+  var archivoInput = document.getElementById("upload");
+  var nombreArchivo = archivoInput.files.length > 0 ? archivoInput.files[0].name : "";
 
-  // Validar
-  if (!idCaso || !tipoEvidencia || !descripcion) {
-    alert("Por favor, completa todos los campos obligatorios.");
+  if (!idCaso || !tipoEvidencia || !descripcion || archivoInput.files.length === 0) {
+    alert("Por favor, completa todos los campos obligatorios y adjunta un archivo.");
     return;
   }
 
-  // Mostrar confirmación sin tocar el input
-  document.getElementById("confirmid_evidencia").innerText = "ID Evidencia: " + (idEvidencia || "No especificado");
-  document.getElementById("confirmid_caso").innerText = "ID Caso: " + (idCaso || "No especificado");
-  document.getElementById("confirmtipo_evidencia").innerText = "Tipo de Evidencia: " + (tipoEvidencia || "No especificado");
-  document.getElementById("confirmdescripcion").innerText = "Descripción: " + (descripcion || "No especificado");
-  document.getElementById("confirmnombre_archivo").innerText = "Archivo: " + (nombreArchivo || "No especificado");
+  document.getElementById("confirmid_evidencia").innerText = "ID Evidencia: " + idEvidencia;
+  document.getElementById("confirmid_caso").innerText = "ID Caso: " + idCaso;
+  document.getElementById("confirmtipo_evidencia").innerText = "Tipo de Evidencia: " + tipoEvidencia;
+  document.getElementById("confirmdescripcion").innerText = "Descripción: " + descripcion;
+  document.getElementById("confirmnombre_archivo").innerText = "Archivo: " + nombreArchivo;
 
-  // Mostrar sección de confirmación
   document.getElementById("registrationForm").style.display = "none";
   document.getElementById("confirmation").style.display = "block";
 });
 
-// Editar
-document.getElementById("editBtn").addEventListener("click", function(){
+document.getElementById("editBtn").addEventListener("click", function () {
   document.getElementById("registrationForm").style.display = "block";
   document.getElementById("confirmation").style.display = "none";
 });
 
-// Confirmar
-document.getElementById("submitBtn").addEventListener("click", function(){
+document.getElementById("submitBtn").addEventListener("click", function () {
   document.getElementById("registrationForm").submit();
 });

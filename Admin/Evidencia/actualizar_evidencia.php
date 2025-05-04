@@ -1,4 +1,7 @@
 <?php
+
+session_start(); // NECESARIO para acceder a $_SESSION
+
 $conexion = new mysqli("localhost", "root", "", "cadena_custodia");
 if ($conexion->connect_error) {
     die("Error de conexión: " . $conexion->connect_error);
@@ -8,27 +11,30 @@ $id = $_POST["id"]; // id_evidencia
 $id_caso = $_POST["id_caso"];
 $id_usuario = $_POST["id_usuario"];
 $tipo_evidencia = $_POST["tipo_evidencia"];
-$descripcion = $_POST["descripcion"]; // Asegúrate de que el name coincide
-$nombre_archivo = $_POST["nombre_archivo"];
+$descripcion = $_POST["descripcion"];
 
-$sql = "UPDATE evidencias SET id_caso = ?, id_usuario = ?, tipo_evidencia = ?, descripcion = ?, nombre_archivo = ? WHERE id_evidencia = ?";
+$sql = "UPDATE evidencias SET id_caso = ?, id_usuario = ?, tipo_evidencia = ?, descripcion = ? WHERE id_evidencia = ?";
 $stmt = $conexion->prepare($sql);
-$stmt->bind_param("iisssi", $id_caso, $id_usuario, $tipo_evidencia, $descripcion, $nombre_archivo, $id);
+$stmt->bind_param("iissi", $id_caso, $id_usuario, $tipo_evidencia, $descripcion, $id);
 
 if ($stmt->execute()) {
-    $sql = "INSERT INTO historial_accesos 
-            (id_usuario, accion, direccion_ip)
-        VALUES (?, 'Modificación Evidencia', ?)";
+    $stmt->close();
+
+    // Usuario que hace la modificación
+    $usuario_modifica = $_SESSION['usuario_id'];
     $ip = $_SERVER['REMOTE_ADDR'];
-    $stmt = $conexion->prepare($sql);
-    $stmt->bind_param("is",$usuario, $ip);
-    if ($stmt->execute()) {
-        echo "Evidencia actualizada correctamente.";
-    }
+
+    $sql = "INSERT INTO historial_accesos (id_usuario, id_evidencia, accion, direccion_ip)
+            VALUES (?, ?, 'Modificación Evidencia', ?)";
+    $stmt2 = $conexion->prepare($sql);
+    $stmt2->bind_param("iis", $usuario_modifica, $id, $ip);
+    $stmt2->execute();
+    $stmt2->close();
+
+    echo "Evidencia actualizada correctamente.";
 } else {
     echo "Error al actualizar: " . $stmt->error;
 }
 
-$stmt->close();
 $conexion->close();
 ?>

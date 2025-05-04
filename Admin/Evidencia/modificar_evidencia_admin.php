@@ -11,17 +11,9 @@ if ($conexion->connect_error) {
     die("Error de conexión: " . $conexion->connect_error);
 }
 
-$sql = "SELECT id_evidencia, id_caso, id_usuario, tipo_evidencia, descripcion, nombre_archivo FROM evidencias";
+$sql = "SELECT id_evidencia, id_caso, id_usuario, tipo_evidencia, descripcion, nombre_archivo, ruta_archivo FROM evidencias";
 $resultado = $conexion->query($sql);
-
-// 1) Saca la URI o el nombre del script actual
-$current = $_SERVER['REQUEST_URI']; 
-// 2) Marca cada sección como activa si la URI la contiene
-$isEvidencia = strpos($current, '/Evidencia/') !== false;
-$isCasos    = strpos($current, '/Casos/') !== false;
-$isUsuarios = strpos($current, '/Usuarios/') !== false;
 ?>
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -64,7 +56,7 @@ $isUsuarios = strpos($current, '/Usuarios/') !== false;
         </li>
 
         <!-- EVIDENCIA -->
-        <li class="navbar-dropdown <?= $isEvidencia ? 'active' : '' ?>">
+        <li class="navbar-dropdown active">
           <a href="#" class="dropdown-toggler" data-dropdown="dropdown-evidencia">
             Evidencia <i class="fa fa-angle-down"></i>
           </a>
@@ -90,7 +82,7 @@ $isUsuarios = strpos($current, '/Usuarios/') !== false;
         </li>
 
         <!-- CASOS -->
-        <li class="navbar-dropdown <?= $isCasos ? 'active' : '' ?>">
+        <li class="navbar-dropdown">
           <a href="#" class="dropdown-toggler" data-dropdown="dropdown-casos">
             Casos <i class="fa fa-angle-down"></i>
           </a>
@@ -116,7 +108,7 @@ $isUsuarios = strpos($current, '/Usuarios/') !== false;
 
         <?php if ($_SESSION['id_rol'] === 4): ?>
           <!-- USUARIOS (solo admin) -->
-          <li class="navbar-dropdown <?= $isUsuarios ? 'active' : '' ?>">
+          <li class="navbar-dropdown">
             <a href="#" class="dropdown-toggler" data-dropdown="dropdown-usuarios">
               Usuarios <i class="fa fa-angle-down"></i>
             </a>
@@ -155,7 +147,7 @@ $isUsuarios = strpos($current, '/Usuarios/') !== false;
         <th>ID Usuario</th>
         <th>Tipo de Evidencia</th>
         <th>Descripción</th>
-        <th>Nombre de Archivo</th>
+        <th>Ver archivo</th>
         <th>Acciones</th>
       </tr>
     </thead>
@@ -175,7 +167,11 @@ $isUsuarios = strpos($current, '/Usuarios/') !== false;
           </select>
         </td>
         <td><input type="text" value="<?= $fila['descripcion'] ?>" disabled></td>
-        <td><input type="text" value="<?= $fila['nombre_archivo'] ?>" disabled></td>
+        <td>
+          <a href="../../Evidencia/<?= htmlspecialchars($fila['ruta_archivo']) ?>" target="_blank">Ver archivo</a>
+          <input type="hidden" name="nombre_archivo" value="<?= htmlspecialchars($fila['nombre_archivo']) ?>">
+        </td>
+
         <td>
           <button class="edit-btn">Editar</button>
           <button class="save-btn" style="display:none;">Guardar</button>

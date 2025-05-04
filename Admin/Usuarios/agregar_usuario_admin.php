@@ -11,12 +11,11 @@ if ($conexion->connect_error) {
     die("Error de conexión: " . $conexion->connect_error);
 }
 
-// 1) Saca la URI o el nombre del script actual
-$current = $_SERVER['REQUEST_URI']; 
-// 2) Marca cada sección como activa si la URI la contiene
-$isEvidencia = strpos($current, '/Evidencia/') !== false;
-$isCasos    = strpos($current, '/Casos/') !== false;
-$isUsuarios = strpos($current, '/Usuarios/') !== false;
+$resultado = $conexion->query("SELECT MAX(id_usuario) AS ultimo_id FROM usuarios");
+$fila = $resultado->fetch_assoc();
+$siguiente_id_usuario = $fila['ultimo_id'] + 1;
+$roles_result = $conexion->query("SELECT nombre FROM roles");
+
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -59,7 +58,7 @@ $isUsuarios = strpos($current, '/Usuarios/') !== false;
         </li>
 
         <!-- EVIDENCIA -->
-        <li class="navbar-dropdown <?= $isEvidencia ? 'active' : '' ?>">
+        <li class="navbar-dropdown">
           <a href="#" class="dropdown-toggler" data-dropdown="dropdown-evidencia">
             Evidencia <i class="fa fa-angle-down"></i>
           </a>
@@ -85,7 +84,7 @@ $isUsuarios = strpos($current, '/Usuarios/') !== false;
         </li>
 
         <!-- CASOS -->
-        <li class="navbar-dropdown <?= $isCasos ? 'active' : '' ?>">
+        <li class="navbar-dropdown">
           <a href="#" class="dropdown-toggler" data-dropdown="dropdown-casos">
             Casos <i class="fa fa-angle-down"></i>
           </a>
@@ -111,7 +110,7 @@ $isUsuarios = strpos($current, '/Usuarios/') !== false;
 
         <?php if ($_SESSION['id_rol'] === 4): ?>
           <!-- USUARIOS (solo admin) -->
-          <li class="navbar-dropdown <?= $isUsuarios ? 'active' : '' ?>">
+          <li class="navbar-dropdown  active">
             <a href="#" class="dropdown-toggler" data-dropdown="dropdown-usuarios">
               Usuarios <i class="fa fa-angle-down"></i>
             </a>
@@ -149,14 +148,15 @@ $isUsuarios = strpos($current, '/Usuarios/') !== false;
         <!-- ID Usuario (opcional, si se requiere) -->
         <div class="formbold-input-flex">
           <div>
-            <input
+          <input
               type="text"
               name="id_usuario"
               id="id_usuario"
               placeholder="ID Usuario"
               class="formbold-form-input"
+              value="<?php echo $siguiente_id_usuario; ?>" 
               readonly
-            />
+            />  
             <label for="id_usuario" class="formbold-form-label">ID Usuario</label>
           </div>
           <!-- Campo para contraseña, tipo password para ocultar -->
@@ -233,8 +233,8 @@ $isUsuarios = strpos($current, '/Usuarios/') !== false;
           </div>
         </div>
         <!-- Botón para pasar a la confirmación -->
-        <button type="button" id="confirmBtn" class="formbold-btn" style="width: 250px; display: block; margin: 0 auto;">
-          Confirmar Datos
+        <button type="button" id="confirmBtn" class="formbold-btn" style="display: block; margin: 30px auto;">
+          Registrar Usuario
         </button>
 
       </form>

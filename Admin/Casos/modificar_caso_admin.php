@@ -5,50 +5,13 @@ if (!isset($_SESSION['usuario_id'])) {
     exit();
 }
 
-// Conexión a la base de datos
 $conexion = new mysqli("localhost", "root", "", "cadena_custodia");
 if ($conexion->connect_error) {
     die("Error de conexión: " . $conexion->connect_error);
 }
 
-// Recoger filtros de la query string
-$filtros = [];
-if (!empty($_GET['id_caso'])) {
-    $id = intval($_GET['id_caso']);
-    $filtros[] = "id_caso = $id";
-}
-if (!empty($_GET['nombre_caso'])) {
-    $nombre = $conexion->real_escape_string($_GET['nombre_caso']);
-    $filtros[] = "nombre_caso LIKE '%$nombre%'";
-}
-if (!empty($_GET['fecha_creacion'])) {
-    $fecha = $conexion->real_escape_string($_GET['fecha_creacion']);
-    $filtros[] = "DATE(fecha_creacion) = '$fecha'";
-}
-if (!empty($_GET['id_usuario'])) {
-    $usuario = intval($_GET['id_usuario']);
-    $filtros[] = "id_usuario = $usuario";
-}
-if (!empty($_GET['estado'])) {
-    $estados = array_map(function($e) use ($conexion) {
-        return "'" . $conexion->real_escape_string($e) . "'";
-    }, (array)$_GET['estado']);
-    $filtros[] = "estado IN (" . implode(',', $estados) . ")";
-}
-
-// Construir la consulta dinámica
 $sql = "SELECT id_caso, nombre_caso, fecha_creacion, descripcion, estado, id_usuario FROM casos";
-if (count($filtros) > 0) {
-    $sql .= " WHERE " . implode(" AND ", $filtros);
-}
-$sql .= " ORDER BY id_caso DESC";
 $resultado = $conexion->query($sql);
-
-// Detectar sección activa para el navbar
-$current = $_SERVER['REQUEST_URI'];
-$isEvidencia = strpos($current, '/Evidencia/') !== false;
-$isCasos    = strpos($current, '/Casos/') !== false;
-$isUsuarios = strpos($current, '/Usuarios/') !== false;
 ?>
 
 <!DOCTYPE html>
@@ -61,46 +24,8 @@ $isUsuarios = strpos($current, '/Usuarios/') !== false;
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../../css/navbar.css">
   <link rel="stylesheet" href="../../css/forms.css">
-  <style>
-    .filter-panel form { display: flex; flex-wrap: wrap; gap: 1rem; align-items: center; margin-bottom: 1.5rem; }
-    .filter-panel .field { flex: 1; min-width: 150px; }
-    .filter-panel .field label { display: block; font-weight: 600; margin-bottom: 0.25rem; }
-    .filter-panel .field input,
-    .filter-panel .field select { width: 100%; padding: 0.5rem; border: 1px solid #ccc; border-radius: 0.25rem; }
-    .filter-panel .actions { display: flex; gap: 0.5rem; align-items: center; }
-    .filter-panel .actions button,
-    .filter-panel .actions a { padding: 0.5rem 1rem; border: none; background: #4A90E2; color: #fff; text-decoration: none; border-radius: 0.25rem; cursor: pointer; }
-    .filter-panel .actions a { background: #888; }
-    .filter-panel .actions a:hover,
-    .filter-panel .actions button:hover { opacity: 0.9; }
-
-    /* Tabla con estilos restaurados */
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-family: 'Roboto', sans-serif;
-    }
-    table th,
-    table td {
-      padding: 0.75rem;
-      border: 1px solid #ddd;
-      text-align: left;
-    }
-    table th {
-      background-color: #4A90E2;
-      color: #fff;
-      font-weight: 600;
-    }
-    table tbody tr:nth-child(even) {
-      background-color: #f9f9f9;
-    }
-    table tbody tr:hover {
-      background-color: #e6f7ff;
-    }
-  </style>
 </head>
 <body>
-
 <!-- ========== Navbar ========== -->
 <nav class="navbar">
   <div class="container">
@@ -129,7 +54,7 @@ $isUsuarios = strpos($current, '/Usuarios/') !== false;
         </li>
 
         <!-- EVIDENCIA -->
-        <li class="navbar-dropdown <?= $isEvidencia ? 'active' : '' ?>">
+        <li class="navbar-dropdown">
           <a href="#" class="dropdown-toggler" data-dropdown="dropdown-evidencia">
             Evidencia <i class="fa fa-angle-down"></i>
           </a>
@@ -155,7 +80,7 @@ $isUsuarios = strpos($current, '/Usuarios/') !== false;
         </li>
 
         <!-- CASOS -->
-        <li class="navbar-dropdown <?= $isCasos ? 'active' : '' ?>">
+        <li class="navbar-dropdown active">
           <a href="#" class="dropdown-toggler" data-dropdown="dropdown-casos">
             Casos <i class="fa fa-angle-down"></i>
           </a>
@@ -181,7 +106,7 @@ $isUsuarios = strpos($current, '/Usuarios/') !== false;
 
         <?php if ($_SESSION['id_rol'] === 4): ?>
           <!-- USUARIOS (solo admin) -->
-          <li class="navbar-dropdown <?= $isUsuarios ? 'active' : '' ?>">
+          <li class="navbar-dropdown">
             <a href="#" class="dropdown-toggler" data-dropdown="dropdown-usuarios">
               Usuarios <i class="fa fa-angle-down"></i>
             </a>
@@ -210,37 +135,7 @@ $isUsuarios = strpos($current, '/Usuarios/') !== false;
   </div>
 </nav>
 
-<div class="filter-panel">
-  <form method="get" action="">
-    <div class="field">
-      <label for="id_caso">ID:</label>
-      <input type="number" id="id_caso" name="id_caso" value="<?= htmlspecialchars($_GET['id_caso'] ?? '') ?>">
-    </div>
-    <div class="field">
-      <label for="nombre_caso">Nombre:</label>
-      <input type="text" id="nombre_caso" name="nombre_caso" value="<?= htmlspecialchars($_GET['nombre_caso'] ?? '') ?>">
-    </div>
-    <div class="field">
-      <label for="fecha_creacion">Fecha:</label>
-      <input type="date" id="fecha_creacion" name="fecha_creacion" value="<?= htmlspecialchars($_GET['fecha_creacion'] ?? '') ?>">
-    </div>
-    <div class="field">
-      <label for="id_usuario">Usuario (ID):</label>
-      <input type="number" id="id_usuario" name="id_usuario" value="<?= htmlspecialchars($_GET['id_usuario'] ?? '') ?>">
-    </div>
-    <div class="field">
-      <label for="estado">Estado:</label>
-      <select id="estado" name="estado[]" multiple>
-        <option value="abierto" <?= in_array('abierto', (array)($_GET['estado'] ?? [])) ? 'selected' : '' ?>>Abierto</option>
-        <option value="cerrado" <?= in_array('cerrado', (array)($_GET['estado'] ?? [])) ? 'selected' : '' ?>>Cerrado</option>
-      </select>
-    </div>
-    <div class="actions">
-      <button type="submit">Filtrar</button>
-      <a href="<?= strtok($_SERVER['REQUEST_URI'], '?') ?>">Limpiar</a>
-    </div>
-  </form>
-</div>
+
 
 <table>
   <thead>
@@ -258,10 +153,10 @@ $isUsuarios = strpos($current, '/Usuarios/') !== false;
     <?php while ($fila = $resultado->fetch_assoc()) { ?>
     <tr data-id="<?= $fila['id_caso'] ?>">
       <td><?= $fila['id_caso'] ?></td>
-      <td><input type="text" value="<?= htmlspecialchars($fila['nombre_caso']) ?>" disabled></td>
-      <td><input type="text" value="<?= htmlspecialchars($fila['fecha_creacion']) ?>" disabled></td>
-      <td><input type="text" value="<?= htmlspecialchars($fila['id_usuario']) ?>" disabled></td>
-      <td><input type="text" value="<?= htmlspecialchars($fila['descripcion']) ?>" disabled></td>
+      <td><input type="text" value="<?= $fila['nombre_caso'] ?>" disabled></td>
+      <td><input type="text" value="<?= $fila['fecha_creacion'] ?>" disabled></td>
+      <td><input type="text" value="<?= $fila['id_usuario'] ?>" disabled></td>
+      <td><input type="text" value="<?= $fila['descripcion'] ?>" disabled></td>
       <td>
         <select disabled>
           <option value="abierto" <?= $fila['estado'] == 'abierto' ? 'selected' : '' ?>>Abierto</option>
@@ -276,7 +171,6 @@ $isUsuarios = strpos($current, '/Usuarios/') !== false;
     <?php } ?>
   </tbody>
 </table>
-
 <script src="../../js/navbar.js"></script>
 <script src="../../js/forms.js"></script>
 <script>
@@ -324,4 +218,3 @@ document.querySelectorAll(".save-btn").forEach(button => {
 </script>
 </body>
 </html>
-

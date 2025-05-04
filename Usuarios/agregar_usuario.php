@@ -20,118 +20,28 @@ $roles_result = $conexion->query("SELECT nombre FROM roles");
   <link rel="stylesheet" href="../css/navbar.css">
   <link rel="stylesheet" href="../css/forms.css">
   <link rel="stylesheet" href="../css/confirmacion/check_usuario.css">
+  <style>
+  .volver-flecha {
+    display: inline-block;
+    margin: 20px;
+    font-size: 16px;
+    color: #007BFF;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.2s ease;
+  }
+
+  .volver-flecha:hover {
+    color: #0056b3;
+    text-decoration: underline;
+  }
+</style>
+
 </head>
 <body>
-<!-- ========== Navbar ========== -->
-<nav class="navbar">
-  <div class="container">
-    <div class="navbar-header">
-      <button class="navbar-toggler" data-toggle="open-navbar1">
-        <span></span>
-        <span></span>
-        <span></span>
-      </button>
-      <a href="#">
-        <img
-          src="<?= $_SESSION['id_rol'] === 4 
-                    ? '../../images/techlab.png' 
-                    : '../images/techlab.png' ?>"
-          alt="Legal Tech"
-          style="width:150px; height:auto;"
-        >
-      </a>
-    </div>
-    <div class="navbar-menu" id="open-navbar1">
-      <ul class="navbar-nav">
-        <li class="navbar-item">
-          <a href="#">
-            <?= htmlspecialchars($_SESSION['nombre']) ?> (ID: <?= htmlspecialchars($_SESSION['usuario_id']) ?>)
-          </a>
-        </li>
-
-        <!-- EVIDENCIA -->
-        <li class="navbar-dropdown <?= $isEvidencia ? 'active' : '' ?>">
-          <a href="#" class="dropdown-toggler" data-dropdown="dropdown-evidencia">
-            Evidencia <i class="fa fa-angle-down"></i>
-          </a>
-          <ul class="dropdown" id="dropdown-evidencia">
-            <li class="separator"></li>
-            <li>
-              <a href="<?= $_SESSION['id_rol'] === 4 
-                            ? '../../Admin/Evidencia/agregar_evidencia_admin.php' 
-                            : '../Evidencia/agregar_evidencia.php' ?>">
-                Agregar
-              </a>
-            </li>
-            <li class="separator"></li>
-            <li>
-              <a href="<?= $_SESSION['id_rol'] === 4 
-                            ? '../../Admin/Evidencia/modificar_evidencia_admin.php' 
-                            : '../Evidencia/modificar_evidencia.php' ?>">
-                Consultar
-              </a>
-            </li>
-            <li class="separator"></li>
-          </ul>
-        </li>
-
-        <!-- CASOS -->
-        <li class="navbar-dropdown <?= $isCasos ? 'active' : '' ?>">
-          <a href="#" class="dropdown-toggler" data-dropdown="dropdown-casos">
-            Casos <i class="fa fa-angle-down"></i>
-          </a>
-          <ul class="dropdown" id="dropdown-casos">
-            <li>
-              <a href="<?= $_SESSION['id_rol'] === 4 
-                            ? '../../Admin/Casos/agregar_caso_admin.php' 
-                            : '../Casos/agregar_caso.php' ?>">
-                Agregar
-              </a>
-            </li>
-            <li class="separator"></li>
-            <li>
-              <a href="<?= $_SESSION['id_rol'] === 4 
-                            ? '../../Admin/Casos/modificar_caso_admin.php' 
-                            : '../Casos/modificar_caso.php' ?>">
-                Consultar
-              </a>
-            </li>
-            <li class="separator"></li>
-          </ul>
-        </li>
-
-        <?php if ($_SESSION['id_rol'] === 4): ?>
-          <!-- USUARIOS (solo admin) -->
-          <li class="navbar-dropdown <?= $isUsuarios ? 'active' : '' ?>">
-            <a href="#" class="dropdown-toggler" data-dropdown="dropdown-usuarios">
-              Usuarios <i class="fa fa-angle-down"></i>
-            </a>
-            <ul class="dropdown" id="dropdown-usuarios">
-              <li><a href="../../Admin/Usuarios/agregar_usuario_admin.php">Agregar</a></li>
-              <li class="separator"></li>
-              <li><a href="../Usuarios/permisos_admin.php">Permisos</a></li>
-              <li class="separator"></li>
-              <li><a href="../../Admin/Usuarios/modificar_usuario_admin.php">Consultar</a></li>
-              <li class="separator"></li>
-            </ul>
-          </li>
-          <!-- HISTORIAL DE ACCESOS (solo admin) -->
-          <li><a href="../../Admin/Usuarios/historial_accesos.php">Historial de accesos</a></li>
-        <?php endif; ?>
-
-        <li>
-          <a href="<?= $_SESSION['id_rol'] === 4 
-                        ? '../../Login/logout.php' 
-                        : '../Login/logout.php' ?>">
-            Salir
-          </a>
-        </li>
-      </ul>
-    </div>
-  </div>
-</nav>
-
-
+  <a href="../Login/login.php" class="volver-flecha" title="Volver al login">
+    &#8592; Volver al login
+  </a>
   <div class="formbold-main-wrapper">
     <div class="formbold-form-wrapper">
       <!-- Formulario de registro -->
@@ -223,8 +133,8 @@ $roles_result = $conexion->query("SELECT nombre FROM roles");
           </div>
         </div>
         <!-- Botón para pasar a la confirmación -->
-        <button type="button" id="confirmBtn" class="formbold-btn" style="width: 250px; display: block; margin: 0 auto;">
-          Confirmar Datos
+        <button type="button" id="confirmBtn" class="formbold-btn" style="display: block; margin: 30px auto;">
+          Registrar Evidencia
         </button>
 
       </form>
