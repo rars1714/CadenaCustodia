@@ -14,7 +14,7 @@ if ($conexion->connect_error) {
 }
 
 // Acciones permitidas para filtrar
-$acciones_permitidas = ['Subida Evidencia', 'Subida Caso', 'Modificación Evidencia', 'Modificación Caso', 'login'];
+$acciones_permitidas = ['Subida Evidencia', 'Subida Caso', 'Modificación Evidencia', 'Modificación Caso', 'Registro Análisis', 'Consulta Análisis', 'login'];
 $filtro = isset($_GET['accion']) && in_array($_GET['accion'], $acciones_permitidas) ? $_GET['accion'] : '';
 
 // Preparar consulta según filtro

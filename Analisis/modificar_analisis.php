@@ -27,6 +27,11 @@ $stmt = $conexion->prepare($sql);
 if ($id_rol != 4) $stmt->bind_param("i", $id_usuario);
 $stmt->execute();
 $resultado = $stmt->get_result();
+$ip = $_SERVER['REMOTE_ADDR'];
+$h = $conexion->prepare("INSERT INTO historial_accesos (id_usuario, accion, direccion_ip) VALUES (?, 'Consulta Análisis', ?)");
+$h->bind_param("is", $id_usuario, $ip);
+$h->execute();
+
 ?>
 
 <!DOCTYPE html>
